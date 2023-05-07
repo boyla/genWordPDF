@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>施工组织设计生成</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script type="text/javascript" src="vue2.7.js"></script>
+    <link href="https://cdn.staticfile.org/twitter-bootstrap/5.1.1/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.staticfile.org/twitter-bootstrap/5.1.1/js/bootstrap.bundle.min.js"></script>
+    <script type="text/javascript" src="model.js"></script>
+
+</head>
+
+<body>
+<div id="app">
+    <div class="container-fluid p-5 bg-white text-black text-center">
+        <h1>施工组织设计生成</h1>
+        <div class="row text-center" style="margin-top: 28px">
+            <div class="input-group mb-2" style="width: 50%">
+                <span class="input-group-text">项目名称：</span>
+                <input v-model="name" type="text" class="form-control">
+            </div>
+
+            <div class="input-group mb-2" style="width: 50%">
+                <span class="input-group-text">施工地点：</span>
+                <input v-model="address" type="text" class="form-control">
+            </div>
+
+            <div class="input-group mb-2" style="width: 50%">
+                <span class="input-group-text">开始时间：</span>
+                <input v-model="start_date" type="date" class="form-control">
+            </div>
+
+            <div class="input-group mb-2" style="width: 50%">
+                <span class="input-group-text">截止时间：</span>
+                <input v-model="end_date" type="date" class="form-control">
+            </div>
+        </div>
+
+        <div class="row" style="padding-top: 55px;text-align: left">
+            <div class="col">
+                <h4 style="">选择模版</h4>
+                <div class="card  border-info"
+                     style="margin-top: 25px;border-radius:25px;padding: 1.5% 3% 1.5% 3%">
+                    <ul class="list-group" style="list-style: none;margin-top:0;padding:0%;">
+                        <li v-for="obj in models"
+                            style="margin-top: 1.5%;margin-bottom: 1.5%;padding:0">
+                            <div class="card"
+                                 style="border-radius:25px;padding: 16px;background: ghostwhite">
+                                <div style="display: flex;flex-direction: row" v-if="obj">
+                                    <div style="display: flex;flex-direction: column;width: 84%">
+                                        <span style="font-size: 22px;color:black;font-weight: 400;line-height: 23px;">
+                                        {{ obj.title }}
+                                        </span>
+                                        <span style="margin-top: 10px">内容模版:</span>
+                                        <select v-model="obj.selected" @change="selectOption" style="width: 100%">
+                                            <option v-for="(option, index) in obj.contents" :key="index" :value="index"
+                                                    style="height: auto">
+                                                {{ option }}
+                                            </option>
+                                        </select>
+                                    </div>
+                                    <button type="button" class="btn btn-block"
+                                            :class="[(obj.inUse) ? 'btn-danger' : 'btn-primary']" @click="useModel(obj)"
+                                            style="width: 14%;border-radius:15px;margin-left:2%;margin-top:15px;margin-bottom:15px;">
+                                        {{ (obj.inUse) ? "移除" : "使用" }}
+                                    </button>
+
+                                </div>
+
+                            </div>
+
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="col">
+                <h4 style="">结果预览</h4>
+                <div class="card bg-light" style="margin-top: 25px;border-radius:25px;padding:16px"
+                     v-if="retLi.length>0">
+                    <ul style="list-style: none;margin-top:0;padding-top:0;">
+                        <li v-for="(obj,i) in retLi" style="padding-top: 16px;padding-bottom: 16px">
+                            <div style="display: flex;flex-direction: row" v-if="obj">
+                                <div style="display: flex;flex-direction: column;">
+                                    <span style="font-size: 22px;color:black;font-weight: 400;line-height: 23px;width: 230px">
+                                        {{ formatTitle(i, obj.title) }}
+                                    </span>
+                                    <span style="margin-top: 15px">{{ formatModel(obj.contents[obj.selected]) }}</span>
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+<div id="file"></div>
+
+<script>
+    var app = new Vue({
+        el: "#app",
+        data: {
+            models: [],
+            retLi: [],
+            selected: -1,
+            name: "XX项目",
+            address: "地球村",
+            start_date: "2023-05-01",
+            end_date: "2023-05-01"
+        },
+        methods: {
+            selectOption: function () {
+
+            },
+            useModel: function (model) {
+                if (model.inUse) {
+                    this.retLi = this.retLi.filter(e => e.title !== model.title)
+                } else {
+                    this.retLi.push(model)
+                }
+                model.inUse = !model.inUse
+            },
+            formatTitle: function (i, title) {
+                if (i < 10) {
+                    return first + arr[i] + end + title
+                }
+                var high = Math.floor(i / 10)
+                var low = i % 10
+                console.log("ten:" + high + " Low: " + low)
+                if (low === 9) {
+                    return first + arr[high] + ten + end + title
+                }
+                if (high === 1) {
+                    return first + ten + arr[low] + end + title
+                }
+                return first + arr[high - 1] + ten + arr[low] + end + title
+            },
+            formatModel: function (content) {
+                var ret = content
+                ret = ret.replace("{{name}}", this.name)
+                ret = ret.replace("{{address}}", this.address)
+                ret = ret.replace("{{start_date}}", this.start_date)
+                ret = ret.replace("{{end_date}}", this.end_date)
+                return ret
+            }
+        },
+    })
+    // const objArr = JSON.parse(localStorage.getItem('models'));
+    app.models = models
+    // console.log("Vue:" + JSON.stringify(models))
+
+    const arr = ["一", "二", "三", "四", "五", "六", "七", "八", "九", "十"]
+    const first = "第"
+    const ten = "十"
+    const end = "章  "
+
+</script>
+
+
+<script>
+    function sleep(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms))
+    }
+
+    async function testDir(dirHandle) {
+        for await (const entry of dirHandle.values()) {
+            console.log(entry.kind, entry.name);
+            if (entry.name === "data.txt") {
+                const fileHandle = await dirHandle.getFileHandle(entry.name);
+                const file = await fileHandle.getFile();
+                const contents = await file.text();
+                document.getElementById("contents").innerText = contents;
+                await dirHandle.removeEntry(entry.name);
+            }
+        }
+    }
+
+    document.getElementById("file").addEventListener("click", async () => {
+        dirHandle = await window.showDirectoryPicker();
+        while (1) {
+            await testDir(dirHandle);
+            await sleep(1000);
+        }
+    });
+
+    function genWord() {
+// 使用 WordCloud 库生成随机 WordCloud
+        const wordCloud = new WordCloud('https://cdn.jsdelivr.net/npm/wordcloudjs@3.2.1/dist/wordcloud.min.css');
+// 将 WordCloud 添加到 HTML 元素中
+        const element = document.createElement('div');
+        element.innerHTML = '<div class="wordcloud">' + wordCloud.generate + '</div>';
+        document.body.appendChild(element);
+
+    }
+
+    function genPDF() {
+// 使用 ZPL 库生成 PDF 文档
+        const zpl = require('zpl');
+// 创建 PDF 对象
+        const pdf = new zpl.Pdf();
+// 添加文本
+        pdf.addText('Hello, World!', 20, 20, {fontName: 'Arial', fontSize: 12});
+// 添加图片
+        pdf.addImage('https://picsum.photos/id/1002/600/400', 20, 20, {scale: 0.8});
+// 保存 PDF 文件
+        pdf.save('hello.pdf');
+    }
+</script>
+</body>
+
+</html>
