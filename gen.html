@@ -5,10 +5,23 @@
     <title>施工组织设计生成</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        pre {
+            white-space: pre-wrap;
+            /* CSS-3 /
+           white-space: -moz-pre-wrap; / Mozilla, since 1999 /
+           white-space: -pre-wrap; / Opera 4-6 /
+           white-space: -o-pre-wrap; / Opera 7 /
+           Word-wrap: break-word; / Internet Explorer 5.5+ */
+        }
+    </style>
     <script type="text/javascript" src="vue2.7.js"></script>
     <link href="https://cdn.staticfile.org/twitter-bootstrap/5.1.1/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.staticfile.org/twitter-bootstrap/5.1.1/js/bootstrap.bundle.min.js"></script>
     <script type="text/javascript" src="model.js"></script>
+
+    <script src="jspdf.min.js"></script>
+    <script type="module" src="font-han-sans.js"></script>
 
 </head>
 
@@ -40,7 +53,7 @@
 
         <div class="row" style="padding-top: 55px;text-align: left">
             <div class="col">
-                <h4 style="">选择模版</h4>
+                <h4 style="height: 48px">选择模版</h4>
                 <div class="card  border-info"
                      style="margin-top: 25px;border-radius:25px;padding: 1.5% 3% 1.5% 3%">
                     <ul class="list-group" style="list-style: none;margin-top:0;padding:0%;">
@@ -77,17 +90,30 @@
             </div>
 
             <div class="col">
-                <h4 style="">结果预览</h4>
-                <div class="card bg-light" style="margin-top: 25px;border-radius:25px;padding:16px"
+                <div style="display: flex;flex-direction: row;height: 48px">
+                    <h4 style="">结果预览</h4>
+                    <button type="button" class="btn btn-success" style="margin-left: 100px;margin-bottom: 8px"
+                            @click="genPDF"
+                            v-if="retLi.length>0">
+                        导出PDF
+                    </button>
+                    <button type="button" class="btn btn-success" style="margin-left: 100px;margin-bottom: 8px;"
+                            v-if="retLi.length>0">
+                        导出word
+                    </button>
+                </div>
+                <div id="resultLi" class="card bg-light" style="margin-top: 25px;border-radius:25px;padding:16px;"
                      v-if="retLi.length>0">
                     <ul style="list-style: none;margin-top:0;padding-top:0;">
                         <li v-for="(obj,i) in retLi" style="padding-top: 16px;padding-bottom: 16px">
                             <div style="display: flex;flex-direction: row" v-if="obj">
                                 <div style="display: flex;flex-direction: column;">
-                                    <span style="font-size: 22px;color:black;font-weight: 400;line-height: 23px;width: 230px">
+                                    <span style="font-size: 22px;color:black;font-weight: 400;line-height: 23px;">
                                         {{ formatTitle(i, obj.title) }}
                                     </span>
-                                    <span style="margin-top: 15px">{{ formatModel(obj.contents[obj.selected]) }}</span>
+                                    <pre style="margin-top: 15px;width: auto">{{
+                                            formatModel(obj.contents[obj.selected])
+                                        }}</pre>
                                 </div>
                             </div>
                         </li>
@@ -145,7 +171,51 @@
                 ret = ret.replace("{{address}}", this.address)
                 ret = ret.replace("{{start_date}}", this.start_date)
                 ret = ret.replace("{{end_date}}", this.end_date)
+                ret = ret.trim()
                 return ret
+            },
+
+            genPDF: function () {
+                var doc = new jsPDF('p', 'mm', 'a4');
+                doc.addFont('SourceHanSans-Normal.ttf', 'SourceHanSans-Normal', 'normal');
+                doc.setFont('SourceHanSans-Normal');
+                var cursorY = 20;
+                app.retLi.forEach(function (obj, i) {
+                    var title = app.formatTitle(i, obj.title)
+                    if (i > 0) {
+                        doc.addPage();
+                        cursorY = 20; // 重置 Y 坐标位置为页面顶部
+                    }
+                    doc.setFontSize(18);
+                    doc.text(title, 10, cursorY);
+                    cursorY += 18 + 2;
+                    var content = app.formatModel(obj.contents[obj.selected]);
+                    doc.setFontSize(10);
+                    var lines = doc.splitTextToSize(content, doc.internal.pageSize.width - 20);
+                    for (var i = 0; i < lines.length; i++) {
+                        if (cursorY > 280) { // 检查导致分页的 Y 坐标位置
+                            doc.addPage();
+                            cursorY = 10; // 重置 Y 坐标位置为页面顶部
+                        }
+                        doc.text(lines[i], 10, cursorY); // 在当前页的给定位置添加文本
+                        cursorY += 10 + 2; // 递增 Y 坐标位置
+                    }
+                })
+                var date = new Date()
+                console.log(date)
+                var year = date.getFullYear()//获取年
+                var month = date.getMonth() + 1//获取月
+                var day = date.getDate()//获取日
+                var hours = date.getHours()//获取时
+                var minutes = date.getMinutes()//获取分
+                var seconds = date.getSeconds()//获取秒
+                month = month > 9 ? month : "0" + month
+                day = day > 9 ? day : "0" + day
+                hours = hours > 9 ? hours : "0" + hours
+                minutes = minutes > 9 ? minutes : "0" + minutes
+                // seconds = seconds > 9 ? seconds : "0" + seconds//数据不大于9时在数据前方拼接一个“0”
+                var result = "施组_" + year + month + day + "_" + hours + minutes
+                doc.save(result+".pdf");
             }
         },
     })
@@ -197,18 +267,6 @@
 
     }
 
-    function genPDF() {
-// 使用 ZPL 库生成 PDF 文档
-        const zpl = require('zpl');
-// 创建 PDF 对象
-        const pdf = new zpl.Pdf();
-// 添加文本
-        pdf.addText('Hello, World!', 20, 20, {fontName: 'Arial', fontSize: 12});
-// 添加图片
-        pdf.addImage('https://picsum.photos/id/1002/600/400', 20, 20, {scale: 0.8});
-// 保存 PDF 文件
-        pdf.save('hello.pdf');
-    }
 </script>
 </body>
 
