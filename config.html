@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>配置模版</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        pre {
+            white-space: pre-wrap;
+            /* CSS-3 /
+           white-space: -moz-pre-wrap; / Mozilla, since 1999 /
+           white-space: -pre-wrap; / Opera 4-6 /
+           white-space: -o-pre-wrap; / Opera 7 /
+           Word-wrap: break-word; / Internet Explorer 5.5+ */
+        }
+
+        .textarea {
+            width: 100%;
+            min-height: 20px;
+            max-height: 70px;
+            outline: 0;
+            border: 1px solid #000;
+            font-size: 16px;
+            overflow-x: hidden;
+            overflow-y: auto;
+            -webkit-user-modify: read-write-plaintext-only;
+        }
+
+        [contentEditable=true]:empty:not(:focus):before {
+            content: attr(data-text);
+        }
+    </style>
+
+    <script type="text/javascript" src="vue2.7.js"></script>
+    <link href="https://cdn.staticfile.org/twitter-bootstrap/5.1.1/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.staticfile.org/twitter-bootstrap/5.1.1/js/bootstrap.bundle.min.js"></script>
+    <script type="text/javascript" src="model.js"></script>
+
+</head>
+
+<body>
+<div id="app">
+    <div class="container-fluid p-5 bg-light text-black text-center">
+        <h4 style="align-content: center">配置模版</h4>
+        <div style="display: flex;flex-direction: row;justify-content: center;text-align: center; line-height: 48px">
+            <button type="button" class="btn btn-info"
+                    style="margin-top: 50px"
+                    @click="resetEdit">
+                重置编辑区
+            </button>
+            <button type="button" class="btn btn-info"
+                    style="margin-top: 50px;margin-left: 50px"
+                    @click="saveConfig">
+                保存配置
+            </button>
+        </div>
+        <div class="row" style="padding-top: 55px;text-align: left">
+            <div class="col" style="width: 70%">
+                <div class="card border-info bg-light"
+                     style="border-radius:25px;padding: 1.5% 3% 1.5% 3%">
+                    <ul class="list-group" style="list-style: none;margin-top:0;padding:0%;">
+                        <li v-for="obj in models"
+                            style="margin-top: 1.5%;margin-bottom: 1.5%;padding:0">
+                            <div class="card"
+                                 style="border-radius:25px;padding: 16px;background: white">
+                                <div style="display: flex;flex-direction: row" v-if="obj">
+                                    <div style="display: flex;flex-direction: column;width: 84%">
+                                        <span style="font-size: 22px;color:black;font-weight: 400;line-height: 23px;">
+                                        {{ obj.title }}
+                                        </span>
+                                        <span style="margin-top: 10px">内容模版:</span>
+                                        <select v-model="obj.selected" @change="selectOption" style="width: 90%">
+                                            <option v-for="(option, index) in obj.contents" :key="index" :value="index"
+                                                    style="height: auto">
+                                                {{ option }}
+                                            </option>
+                                        </select>
+                                    </div>
+                                    <button type="button" class="btn btn-block btn-warning"
+                                            @click="configModel(obj)"
+                                            style="width: 11%;border-radius:15px;margin-left:2%;margin-top:15px;margin-bottom:15px;">
+                                        修改
+                                    </button>
+                                    <button type="button" class="btn btn-block btn-danger"
+                                            @click="delModel(obj)"
+                                            style="width: 11%;border-radius:15px;margin-left:2%;margin-top:15px;margin-bottom:15px;">
+                                        删除
+                                    </button>
+                                </div>
+
+                            </div>
+
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="col">
+                <div class="card border-info bg-light"
+                     style="border-radius:25px;padding: 3% 3% 3% 3%">
+                    <span style="font-size: 22px;color:black;font-weight: 400;line-height: 23px;margin-bottom: 20px">新增内容</span>
+                    <div id="form">
+                        <label>名称:</label>
+                        <!--                        <input id="inputName" type="text" placeholder="输入名称">-->
+                        <div id="inputName" class="textarea" contenteditable="true" data-text="输入名称"></div>
+
+                        <br><br>
+
+                        <span>内容模版1:</span><br>
+                        <div id="input1" class="textarea" contenteditable="true" data-text="输入模版内容"></div>
+                        <!--                        <input id="input1" type="text" name="content[]" placeholder="输入内容"><br><br>-->
+
+                    </div>
+                    <div id="dbtn">
+                        <button type="button" class="btn btn-block btn-info text-white" style="margin-top: 30px"
+                                onclick="addContent()" id="addButton">
+                            新增内容模版
+                        </button>
+                        <br><br>
+                    </div>
+                    <button type="button" class="btn btn-block btn-success" @click="addModel" id="btnSubmit">
+                        提交
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+<script>
+    var app = new Vue({
+        el: "#app",
+        data: {
+            models: [],
+            retLi: [],
+            selected: -1,
+            name: "XX项目",
+            address: "地球村",
+            start_date: "2023-05-01",
+            end_date: "2023-05-01"
+        },
+        methods: {
+            selectOption: function () {
+
+            },
+            useModel: function (model) {
+                if (model.inUse) {
+                    this.retLi = this.retLi.filter(e => e.title !== model.title)
+                } else {
+                    this.retLi.push(model)
+                }
+                model.inUse = !model.inUse
+            },
+
+            configModel: function (obj) {
+                resetEdit()
+                document.getElementById("inputName").innerHTML = obj.title;
+                for (var i = 0; i < obj.contents.length; i++) {
+                    var item = obj.contents[i]
+                    var id = "input" + (i + 1)
+                    var input = document.getElementById(id)
+                    if (!input) {
+                        addContent()
+                    }
+                    input = document.getElementById(id)
+                    input.innerHTML = item;
+                }
+            },
+            delModel: function (obj) {
+                app.models = app.models.filter(e => e.title !== obj.title)
+            },
+        },
+    })
+
+    function refreshCache() {
+        var cacheStr = localStorage.getItem('models')
+        if (cacheStr == null || cacheStr.length === 0) {
+            app.models = models
+        } else {
+            app.models = JSON.parse(cacheStr);
+        }
+    }
+
+    // localStorage.removeItem('models')
+    refreshCache()
+
+    function resetEdit() {
+        document.getElementById("inputName").innerHTML = "";
+        document.getElementById("input1").innerHTML = "";
+        var form = document.getElementById("form");
+        if (inputSum > 1) {
+            for (var i = 2; i <= inputSum; i++) {
+                // document.getElementById("input" + i).innerHTML = "";
+                form.removeChild(document.getElementById("input" + i))
+                form.removeChild(document.getElementById("span" + i))
+            }
+        }
+        inputSum = 1
+    }
+
+    function addModel() {
+        var inList = false
+        var inputName = document.getElementById("inputName").innerHTML.trim()
+        var ret
+        for (var i = 0; i < app.models.length; i++) {
+            var item = app.models[i]
+            if (inputName === item.title) {
+                inList = true;
+                ret = item;
+                break;
+            }
+        }
+        var contentLi = []
+        for (var j = 1; j <= inputSum; j++) {
+            var input = document.getElementById("input" + j).innerHTML
+            if (input != null && input.length > 0) {
+                contentLi.push(input)
+            }
+        }
+        console.log("inList: " + inList)
+        if (inList) {
+            ret.contents = contentLi
+        } else {
+            let obj = {
+                title: inputName,
+                contents: contentLi
+            }
+            app.models.push(obj)
+        }
+    }
+
+    function saveConfig() {
+        localStorage.removeItem('models')
+        localStorage.setItem('models', JSON.stringify(app.models));
+        alert("保存成功")
+        var s = localStorage.getItem('models')
+        console.log("saved data:"+s)
+        // refreshCache()
+    }
+
+    var inputSum = 1;
+
+    function addContent() {
+        // 创建新的内容输入框
+        var input = document.createElement("div");
+        input.className = "textarea"
+        input.contenteditable = "true";
+        // input.data-text = "输入内容";
+        inputSum += 1
+        input.id = "input" + inputSum
+
+        // 找到按钮元素和它的父元素
+        var btn = document.getElementById("dbtn");
+        var form = document.getElementById("form");
+        var span = document.createElement("span");
+        span.innerHTML = "内容模版" + inputSum
+        span.id = "span" + inputSum
+
+        // <span>内容模版1:</span><br>
+        // 在按钮上方插入新的输入框
+        form.appendChild(span);
+        form.appendChild(input);
+    }
+</script>
+
+</body>
+
+</html>

@@ -53,7 +53,10 @@
 
         <div class="row" style="padding-top: 55px;text-align: left">
             <div class="col">
-                <h4 style="height: 48px">选择模版</h4>
+                <div style="display: flex;flex-direction: row;height: 48px;justify-content: center;text-align: center; line-height: 48px">
+                    <h4 algin="center">选择模版</h4>
+                    <a href="config.html" style="margin-left: 15px;">配置模版</a>
+                </div>
                 <div class="card border-info bg-light"
                      style="margin-top: 25px;border-radius:25px;padding: 1.5% 3% 1.5% 3%">
                     <ul class="list-group" style="list-style: none;margin-top:0;padding:0%;">
@@ -90,10 +93,10 @@
             </div>
 
             <div class="col">
-                <div style="display: flex;flex-direction: row;height: 48px">
-                    <h4 style="">结果预览</h4>
+                <div style="display: flex;flex-direction: row;height: 48px;justify-content: center;text-align: center; line-height: 48px">
+                    <h4 style="align-content: center">结果预览</h4>
                     <button id="export_pdf" disabled="disabled" type="button" class="btn btn-success"
-                            style="margin-left: 100px;margin-bottom: 8px"
+                            style="margin-left: 15px;margin-bottom: 8px"
                             @click="genPDF"
                             v-if="retLi.length>0">PDF资源加载中...
                     </button>
@@ -220,8 +223,12 @@
             },
         },
     })
-    // const objArr = JSON.parse(localStorage.getItem('models'));
-    app.models = models
+    var cacheStr = localStorage.getItem('models')
+    if (cacheStr == null || cacheStr.length === 0) {
+        app.models = models
+    } else {
+        app.models = JSON.parse(cacheStr);
+    }
     // console.log("Vue:" + JSON.stringify(models))
 
     const arr = ["一", "二", "三", "四", "五", "六", "七", "八", "九", "十"]
@@ -243,34 +250,6 @@
     document.onreadystatechange = completeLoading;
 </script>
 
-
-<script>
-    function sleep(ms) {
-        return new Promise(resolve => setTimeout(resolve, ms))
-    }
-
-    async function testDir(dirHandle) {
-        for await (const entry of dirHandle.values()) {
-            console.log(entry.kind, entry.name);
-            if (entry.name === "data.txt") {
-                const fileHandle = await dirHandle.getFileHandle(entry.name);
-                const file = await fileHandle.getFile();
-                const contents = await file.text();
-                document.getElementById("contents").innerText = contents;
-                await dirHandle.removeEntry(entry.name);
-            }
-        }
-    }
-
-    document.getElementById("file").addEventListener("click", async () => {
-        dirHandle = await window.showDirectoryPicker();
-        while (1) {
-            await testDir(dirHandle);
-            await sleep(1000);
-        }
-    });
-
-</script>
 </body>
 
 </html>
