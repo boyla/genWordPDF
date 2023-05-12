@@ -1697,6 +1697,6 @@ var configModels = [
 ];
 // models.unshift({
 // });
-var str = JSON.stringify(models);
+// var str = JSON.stringify(configModels);
 // console.log("cache str:" + str);
-localStorage.setItem('models', str);
+// localStorage.setItem('models', str);
