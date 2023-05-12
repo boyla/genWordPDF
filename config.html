@@ -179,8 +179,10 @@
     function refreshCache() {
         var cacheStr = localStorage.getItem('models')
         if (cacheStr == null || cacheStr.length === 0) {
-            app.models = models
+            console.log("use config:" + cacheStr)
+            app.models = configModels
         } else {
+            console.log("use cache:" + cacheStr)
             app.models = JSON.parse(cacheStr);
         }
     }
@@ -238,7 +240,7 @@
         localStorage.setItem('models', JSON.stringify(app.models));
         alert("保存成功")
         var s = localStorage.getItem('models')
-        console.log("saved data:"+s)
+        console.log("saved data:" + s)
         // refreshCache()
     }
 

@@ -1,4 +1,4 @@
-var models = [
+var configModels = [
     {
         title: "工程概括",
         contents: [
