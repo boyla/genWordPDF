@@ -5,6 +5,7 @@
     <title>施工组织设计生成</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="Cache-Control" content="only-if-cached">
     <style>
         pre {
             white-space: pre-wrap;
@@ -95,10 +96,11 @@
             <div class="col">
                 <div style="display: flex;flex-direction: row;height: 48px;justify-content: center;text-align: center; line-height: 48px">
                     <h4 style="align-content: center">结果预览</h4>
-                    <button id="export_pdf" disabled="disabled" type="button" class="btn btn-success"
+                    <button id="export_pdf" type="button" class="btn btn-success"
                             style="margin-left: 15px;margin-bottom: 8px"
                             @click="genPDF"
-                            v-if="retLi.length>0">PDF资源加载中...
+                            :disabled="state!=='complete'"
+                            v-if="retLi.length>0">导出PDF
                     </button>
                 </div>
                 <div id="resultLi" class="card"
@@ -134,9 +136,10 @@
             retLi: [],
             selected: -1,
             name: "XX项目",
-            address: "地球村",
+            address: "成都市",
             start_date: "2023-05-01",
-            end_date: "2023-05-01"
+            end_date: "2023-05-01",
+            state: ""
         },
         methods: {
             selectOption: function () {
@@ -178,27 +181,32 @@
             genPDF: function () {
                 var doc = new jsPDF('p', 'mm', 'a4');
                 doc.addFont('SourceHanSans-Normal.ttf', 'SourceHanSans-Normal', 'normal');
-                doc.setFont('SourceHanSans-Normal');
+                doc.setFont('SourceHanSans-Normal','bold');
                 var cursorY = 20;
+                var fontSize = 0;
+                var honPadding = 20;
                 app.retLi.forEach(function (obj, i) {
                     var title = app.formatTitle(i, obj.title)
                     if (i > 0) {
                         doc.addPage();
                         cursorY = 20; // 重置 Y 坐标位置为页面顶部
                     }
-                    doc.setFontSize(18);
-                    doc.text(title, 10, cursorY);
-                    cursorY += 18 + 2;
+                    fontSize = 18
+                    doc.setFontSize(fontSize);
+                    var titleWidth = doc.getStringUnitWidth(title) * doc.internal.getFontSize() / doc.internal.scaleFactor;
+                    doc.text(title, (doc.internal.pageSize.width - titleWidth) / 2, cursorY);
+                    cursorY += fontSize + 2;
                     var content = app.formatModel(obj.contents[obj.selected]);
-                    doc.setFontSize(10);
-                    var lines = doc.splitTextToSize(content, doc.internal.pageSize.width - 20);
+                    fontSize = 10
+                    doc.setFontSize(fontSize);
+                    var lines = doc.splitTextToSize(content, doc.internal.pageSize.width - 2 * honPadding);
                     for (var i = 0; i < lines.length; i++) {
                         if (cursorY > 280) { // 检查导致分页的 Y 坐标位置
                             doc.addPage();
-                            cursorY = 10; // 重置 Y 坐标位置为页面顶部
+                            cursorY = 20; // 重置 Y 坐标位置为页面顶部
                         }
-                        doc.text(lines[i], 10, cursorY); // 在当前页的给定位置添加文本
-                        cursorY += 10 + 2; // 递增 Y 坐标位置
+                        doc.text(lines[i], honPadding, cursorY); // 在当前页的给定位置添加文本
+                        cursorY += fontSize + 2; // 递增 Y 坐标位置
                     }
                 })
                 var result = app.genFileName()
@@ -239,11 +247,8 @@
 
     //加载状态为complete时移除loading效果
     function completeLoading() {
-        if (document.readyState == "complete") {
-            var btn = document.getElementById('export_pdf')
-            btn.disabled = false
-            btn.innerHTML = "导出PDF"
-        }
+        app.state = document.readyState
+        console.log("onreadystatechange state: " + app.state)
     }
 
     //监听加载状态改变
