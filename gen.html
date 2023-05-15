@@ -181,10 +181,14 @@
             genPDF: function () {
                 var doc = new jsPDF('p', 'mm', 'a4');
                 doc.addFont('SourceHanSans-Normal.ttf', 'SourceHanSans-Normal', 'normal');
-                doc.setFont('SourceHanSans-Normal','bold');
+                doc.setFont('SourceHanSans-Normal', 'bold');
                 var cursorY = 20;
                 var fontSize = 0;
                 var honPadding = 20;
+                // 获取 PDF 页面的宽度和高度
+                var pdfWidth = doc.internal.pageSize.width;
+                var pdfHeight = doc.internal.pageSize.height;
+                console.log("pdfWidth: " + pdfWidth + ", pdfHeight:" + pdfHeight)
                 app.retLi.forEach(function (obj, i) {
                     var title = app.formatTitle(i, obj.title)
                     if (i > 0) {
@@ -194,19 +198,74 @@
                     fontSize = 18
                     doc.setFontSize(fontSize);
                     var titleWidth = doc.getStringUnitWidth(title) * doc.internal.getFontSize() / doc.internal.scaleFactor;
-                    doc.text(title, (doc.internal.pageSize.width - titleWidth) / 2, cursorY);
+                    doc.text(title, (pdfWidth - titleWidth) / 2, cursorY);
                     cursorY += fontSize + 2;
                     var content = app.formatModel(obj.contents[obj.selected]);
                     fontSize = 10
                     doc.setFontSize(fontSize);
-                    var lines = doc.splitTextToSize(content, doc.internal.pageSize.width - 2 * honPadding);
+                    var lines = doc.splitTextToSize(content, pdfWidth - 2 * honPadding);
                     for (var i = 0; i < lines.length; i++) {
                         if (cursorY > 280) { // 检查导致分页的 Y 坐标位置
                             doc.addPage();
                             cursorY = 20; // 重置 Y 坐标位置为页面顶部
                         }
-                        doc.text(lines[i], honPadding, cursorY); // 在当前页的给定位置添加文本
-                        cursorY += fontSize + 2; // 递增 Y 坐标位置
+                        //检查是否插入图片 {pdfImgName:"",width:10,height,10,url:""}
+                        var index = lines[i].indexOf('{"pdfImgName');
+                        if (index !== -1) {
+                            console.log("addImage")
+                            var imgJson = "";
+                            var i_ = i;
+                            while (lines[i].indexOf("}") === -1) {
+                                imgJson += lines[i].trim();
+                                i++;
+                            }
+                            if (i > i_) {
+                                var str = lines[i].trim()
+                                imgJson += str.substring(0, str.indexOf("}")) + "}";
+                            }
+                            var imgObj = JSON.parse(imgJson);
+                            // 定义图片宽度和高度
+                            var imgWidth = imgObj.width > 0 ? imgObj.width : 50;
+                            var imgHeight = imgObj.height > 0 ? imgObj.height : 50;
+                            console.log("imgWidth:" + imgWidth + ", imgHeight:" + imgHeight)
+                            var scaleW = 1;
+                            var scaleH = 1;
+                            if (imgWidth > pdfWidth) {
+                                scaleW = pdfWidth / imgWidth
+                            }
+                            if (imgHeight > pdfHeight) {
+                                scaleH = pdfHeight / imgHeight
+                            }
+                            var scale = scaleW < scaleH ? scaleW : scaleH;
+                            console.log("scale:" + scale)
+                            imgWidth = imgWidth * scale;
+                            imgHeight = imgHeight * scale;
+                            if (imgHeight > (pdfHeight - cursorY)) {
+                                doc.addPage();
+                                cursorY = 20;
+                            }
+                            // 计算图片需要插入的坐标位置，居中显示
+                            var x = (pdfWidth - imgWidth) / 2;
+                            // 插入图片到 PDF 中，并居中显示
+                            var type = imgObj.src.substring(imgObj.src.indexOf("/") + 1, imgObj.src.indexOf(";"))
+                            doc.addImage(imgObj.src, type, x, cursorY, imgWidth, imgHeight);
+                            cursorY += imgHeight + 4;
+                            if (cursorY > 280) { // 检查导致分页的 Y 坐标位置
+                                doc.addPage();
+                                cursorY = 20; // 重置 Y 坐标位置为页面顶部
+                            }
+                            fontSize = 8
+                            doc.setFontSize(fontSize);
+                            var imgTitleWidth = doc.getStringUnitWidth(imgObj.pdfImgName) * doc.internal.getFontSize() / doc.internal.scaleFactor;
+                            doc.text(imgObj.pdfImgName, (pdfWidth - imgTitleWidth) / 2, cursorY);
+                            cursorY += fontSize + 2;
+                            fontSize = 10
+                            doc.setFontSize(10);
+                            //图片处理结束
+                        } else {
+                            doc.text(lines[i], honPadding, cursorY); // 在当前页的给定位置添加文本
+                            cursorY += fontSize + 2; // 递增 Y 坐标位置
+                        }
                     }
                 })
                 var result = app.genFileName()
