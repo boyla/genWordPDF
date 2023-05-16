@@ -50,6 +50,11 @@
                 <span class="input-group-text">截止时间：</span>
                 <input v-model="end_date" type="date" class="form-control">
             </div>
+
+            <div class="input-group mb-3" style="width: 50%">
+                <span class="input-group-text">工期(天)：</span>
+                <input v-model="duration" type="number" class="form-control">
+            </div>
         </div>
 
         <div class="row" style="padding-top: 55px;text-align: left">
@@ -113,7 +118,7 @@
                                     <span style="font-size: 22px;color:black;font-weight: 400;line-height: 23px;">
                                         {{ formatTitle(i, obj.title) }}
                                     </span>
-                                    <pre style="margin-top: 15px;width: auto">{{
+                                    <pre style="margin-top: 15px; white-space: pre-wrap;max-width: 700px">{{
                                             formatModel(obj.contents[obj.selected])
                                         }}</pre>
                                 </div>
@@ -139,6 +144,7 @@
             address: "成都市",
             start_date: "2023-05-01",
             end_date: "2023-05-01",
+            duration: 1,
             state: ""
         },
         methods: {
@@ -174,6 +180,7 @@
                 ret = ret.replace("{{address}}", this.address)
                 ret = ret.replace("{{start_date}}", this.start_date)
                 ret = ret.replace("{{end_date}}", this.end_date)
+                ret = ret.replace("{{duration}}", this.duration)
                 ret = ret.trim()
                 return ret
             },
@@ -210,8 +217,9 @@
                             cursorY = 20; // 重置 Y 坐标位置为页面顶部
                         }
                         //检查是否插入图片 {pdfImgName:"",width:10,height,10,url:""}
-                        var index = lines[i].indexOf('{"pdfImgName');
-                        if (index !== -1) {
+                        var imgIndex = lines[i].indexOf('{"pdfImgName');
+                        var titleIndex = lines[i].indexOf('{#');
+                        if (imgIndex !== -1) {
                             console.log("addImage")
                             var imgJson = "";
                             var i_ = i;
@@ -231,10 +239,10 @@
                             var scaleW = 1;
                             var scaleH = 1;
                             if (imgWidth > pdfWidth) {
-                                scaleW = pdfWidth / imgWidth
+                                scaleW = pdfWidth * 0.4 / imgWidth
                             }
                             if (imgHeight > pdfHeight) {
-                                scaleH = pdfHeight / imgHeight
+                                scaleH = pdfHeight * 0.4 / imgHeight
                             }
                             var scale = scaleW < scaleH ? scaleW : scaleH;
                             console.log("scale:" + scale)
@@ -249,7 +257,7 @@
                             // 插入图片到 PDF 中，并居中显示
                             var type = imgObj.src.substring(imgObj.src.indexOf("/") + 1, imgObj.src.indexOf(";"))
                             doc.addImage(imgObj.src, type, x, cursorY, imgWidth, imgHeight);
-                            cursorY += imgHeight + 4;
+                            cursorY += imgHeight + 8;
                             if (cursorY > 280) { // 检查导致分页的 Y 坐标位置
                                 doc.addPage();
                                 cursorY = 20; // 重置 Y 坐标位置为页面顶部
@@ -262,6 +270,27 @@
                             fontSize = 10
                             doc.setFontSize(10);
                             //图片处理结束
+                        } else if (titleIndex !== -1) {
+                            var titleContent = ""
+                            var index_ = lines[i].indexOf('{###');
+                            var titlieFontSize = 12;
+                            if (index_ === -1) {
+                                index_ = lines[i].indexOf('{##');
+                                titlieFontSize = 14;
+                                if (index_ === -1) {
+                                    index_ = titleIndex;
+                                    titlieFontSize = 16;
+                                    titleContent = lines[i].substring(index_ + 2, lines[i].indexOf('}'))
+                                } else {
+                                    titleContent = lines[i].substring(index_ + 3, lines[i].indexOf('}'))
+                                }
+                            } else {
+                                titleContent = lines[i].substring(index_ + 4, lines[i].indexOf('}'))
+                            }
+                            doc.setFontSize(titlieFontSize);
+                            doc.text(titleContent, honPadding, cursorY);
+                            cursorY += titlieFontSize + 2;
+                            doc.setFontSize(fontSize);
                         } else {
                             doc.text(lines[i], honPadding, cursorY); // 在当前页的给定位置添加文本
                             cursorY += fontSize + 2; // 递增 Y 坐标位置

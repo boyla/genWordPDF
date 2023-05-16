@@ -18,8 +18,8 @@
 
         .textarea {
             width: 100%;
-            min-height: 20px;
-            max-height: 70px;
+            min-height: 30px;
+            max-height: 700px;
             outline: 0;
             border: 1px solid #000;
             font-size: 16px;
@@ -99,16 +99,16 @@
 
             <div class="col">
                 <div class="card border-info bg-light"
-                     style="border-radius:25px;padding: 3% 3% 3% 3%">
+                     style="border-radius:25px;padding: 3% 3% 3% 3%;max-width: 900px">
                     <span style="font-size: 22px;color:black;font-weight: 400;line-height: 23px;margin-bottom: 20px">新增内容</span>
                     <div id="form">
-                        <label>名称:</label>
+                        <label>章节名称:</label>
                         <!--                        <input id="inputName" type="text" placeholder="输入名称">-->
                         <div id="inputName" class="textarea" contenteditable="true" data-text="输入名称"></div>
 
                         <br><br>
 
-                        <span>内容模版1:</span><br>
+                        <span style="color: olivedrab">内容模版1:</span><br>
                         <div id="input1" class="textarea" contenteditable="true" data-text="输入模版内容"></div>
                         <!--                        <input id="input1" type="text" name="content[]" placeholder="输入内容"><br><br>-->
 
@@ -207,6 +207,10 @@
     function addModel() {
         var inList = false
         var inputName = document.getElementById("inputName").innerHTML.trim()
+        if (inputName == null || inputName.length === 0) {
+            alert("请输入章节名称")
+            return
+        }
         var ret
         for (var i = 0; i < app.models.length; i++) {
             var item = app.models[i]
@@ -260,6 +264,7 @@
         var btn = document.getElementById("dbtn");
         var form = document.getElementById("form");
         var span = document.createElement("span");
+        span.style.color = "olivedrab"
         span.innerHTML = "内容模版" + inputSum
         span.id = "span" + inputSum
 
