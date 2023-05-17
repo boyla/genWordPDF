@@ -45,8 +45,14 @@
     <div class="container-fluid p-5 bg-light text-black text-center">
         <h4 style="align-content: center">配置模版</h4>
         <div style="display: flex;flex-direction: row;justify-content: center;text-align: center; line-height: 48px">
-            <button type="button" class="btn btn-info"
+
+            <button type="button" class="btn btn-warning"
                     style="margin-top: 50px"
+                    @click="clearLocalCache">
+                清除本地缓存
+            </button>
+            <button type="button" class="btn btn-info"
+                    style="margin-top: 50px;margin-left: 50px"
                     @click="resetEdit">
                 重置编辑区
             </button>
@@ -246,6 +252,14 @@
         alert("保存成功")
         var s = localStorage.getItem('models')
         console.log("var configModels = " + s + ";")
+        // refreshCache()
+    }
+
+    function clearLocalCache() {
+        localStorage.removeItem('models')
+        var s = localStorage.getItem('models')
+        console.log("clear cache " + s)
+        alert("已清除缓存")
         // refreshCache()
     }
 
