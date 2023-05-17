@@ -131,7 +131,6 @@
     </div>
 
 </div>
-<div id="file"></div>
 
 <script>
     var app = new Vue({
@@ -189,31 +188,71 @@
                 var doc = new jsPDF('p', 'mm', 'a4');
                 doc.addFont('SourceHanSans-Normal.ttf', 'SourceHanSans-Normal', 'normal');
                 doc.setFont('SourceHanSans-Normal', 'bold');
+                doc.setLineHeightFactor(0.5);
+                const SIZE_1 = 18;
+                const SIZE_2 = 15;
+                const SIZE_3 = 12;
+                const SIZE_CONTENT = 10;
+
                 var cursorY = 20;
-                var fontSize = 0;
+                var fontSize = SIZE_1;
                 var honPadding = 20;
+                var catalogPageIndex = 1;
+                var contentPageIndex = 2;
                 // 获取 PDF 页面的宽度和高度
                 var pdfWidth = doc.internal.pageSize.width;
                 var pdfHeight = doc.internal.pageSize.height;
                 console.log("pdfWidth: " + pdfWidth + ", pdfHeight:" + pdfHeight)
+                //生成目录
+                var cursorY_ = 20;
+                var title = "目录"
+                var titleWidth = doc.getStringUnitWidth(title) * doc.internal.getFontSize() / doc.internal.scaleFactor;
+                // doc.setFontSize(fontSize);
+                doc.text(title, (pdfWidth - titleWidth) / 2, cursorY_);
+                cursorY_ += fontSize + 2;
+
+                function updateCatalog(title) {
+                    if (cursorY_ > 280) {
+                        doc.insertPage(catalogPageIndex + 1);
+                        catalogPageIndex++;
+                        contentPageIndex++;
+                        cursorY_ = 20;
+                    }
+                    doc.setPage(catalogPageIndex)
+                    var currentFontSize = doc.getFontSize()
+                    var catalogSize = currentFontSize * 2 / 3;
+                    doc.setFontSize(catalogSize);
+                    doc.text(title, honPadding, cursorY_);
+                    // var txtW = doc.getStringUnitWidth(title) * doc.internal.getFontSize() / doc.internal.scaleFactor;
+                    // doc.link(honPadding, cursorY_, txtW, catalogSize, { destinationPageNumber: 1 });
+                    // doc.textWithLink(title, txtW, cursorY_, { destinationPageNumber: 2 });
+                    cursorY_ += SIZE_3;
+                    doc.setPage(contentPageIndex);
+                    doc.setFontSize(currentFontSize);
+                }
+
+                doc.addPage()
                 app.retLi.forEach(function (obj, i) {
                     var title = app.formatTitle(i, obj.title)
                     if (i > 0) {
                         doc.addPage();
+                        contentPageIndex++;
                         cursorY = 20; // 重置 Y 坐标位置为页面顶部
                     }
-                    fontSize = 18
+                    fontSize = SIZE_1;
                     doc.setFontSize(fontSize);
                     var titleWidth = doc.getStringUnitWidth(title) * doc.internal.getFontSize() / doc.internal.scaleFactor;
                     doc.text(title, (pdfWidth - titleWidth) / 2, cursorY);
+                    updateCatalog(title);
                     cursorY += fontSize + 2;
                     var content = app.formatModel(obj.contents[obj.selected]);
-                    fontSize = 10
+                    fontSize = SIZE_CONTENT;
                     doc.setFontSize(fontSize);
                     var lines = doc.splitTextToSize(content, pdfWidth - 2 * honPadding);
                     for (var i = 0; i < lines.length; i++) {
                         if (cursorY > 280) { // 检查导致分页的 Y 坐标位置
                             doc.addPage();
+                            contentPageIndex++;
                             cursorY = 20; // 重置 Y 坐标位置为页面顶部
                         }
                         //检查是否插入图片 {pdfImgName:"",width:10,height,10,url:""}
@@ -250,6 +289,7 @@
                             imgHeight = imgHeight * scale;
                             if (imgHeight > (pdfHeight - cursorY)) {
                                 doc.addPage();
+                                contentPageIndex++;
                                 cursorY = 20;
                             }
                             // 计算图片需要插入的坐标位置，居中显示
@@ -258,10 +298,11 @@
                             var type = imgObj.src.substring(imgObj.src.indexOf("/") + 1, imgObj.src.indexOf(";"))
                             doc.addImage(imgObj.src, type, x, cursorY, imgWidth, imgHeight);
                             cursorY += imgHeight + 8;
-                            if (cursorY > 280) { // 检查导致分页的 Y 坐标位置
-                                doc.addPage();
-                                cursorY = 20; // 重置 Y 坐标位置为页面顶部
-                            }
+                            // if (cursorY > 280) { // 检查导致分页的 Y 坐标位置
+                            //     doc.addPage();
+                            //     contentPageIndex++;
+                            //     cursorY = 20; // 重置 Y 坐标位置为页面顶部
+                            // }
                             fontSize = 8
                             doc.setFontSize(fontSize);
                             var imgTitleWidth = doc.getStringUnitWidth(imgObj.pdfImgName) * doc.internal.getFontSize() / doc.internal.scaleFactor;
@@ -273,13 +314,13 @@
                         } else if (titleIndex !== -1) {
                             var titleContent = ""
                             var index_ = lines[i].indexOf('{###');
-                            var titlieFontSize = 12;
+                            var titlieFontSize = SIZE_CONTENT;
                             if (index_ === -1) {
                                 index_ = lines[i].indexOf('{##');
-                                titlieFontSize = 14;
+                                titlieFontSize = SIZE_3;
                                 if (index_ === -1) {
                                     index_ = titleIndex;
-                                    titlieFontSize = 16;
+                                    titlieFontSize = SIZE_2;
                                     titleContent = lines[i].substring(index_ + 2, lines[i].indexOf('}'))
                                 } else {
                                     titleContent = lines[i].substring(index_ + 3, lines[i].indexOf('}'))
@@ -289,6 +330,9 @@
                             }
                             doc.setFontSize(titlieFontSize);
                             doc.text(titleContent, honPadding, cursorY);
+                            if (titlieFontSize > SIZE_3) {
+                                updateCatalog("    " + titleContent);
+                            }
                             cursorY += titlieFontSize + 2;
                             doc.setFontSize(fontSize);
                         } else {
@@ -321,7 +365,7 @@
     })
     var cacheStr = localStorage.getItem('models')
     if (cacheStr == null || cacheStr.length === 0) {
-        app.models = models
+        app.models = configModels
     } else {
         app.models = JSON.parse(cacheStr);
     }
