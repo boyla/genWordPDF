@@ -61,6 +61,11 @@
                     @click="saveConfig">
                 保存配置
             </button>
+            <button type="button" class="btn btn-info"
+                    style="margin-top: 50px;margin-left: 50px"
+                    @click="downloadConfig">
+                下载当前配置
+            </button>
         </div>
         <div class="row" style="padding-top: 55px;text-align: left">
             <div class="col" style="width: 70%">
@@ -253,6 +258,18 @@
         var s = localStorage.getItem('models')
         console.log("var configModels = " + s + ";")
         // refreshCache()
+    }
+
+    function downloadConfig() {
+        var s = JSON.stringify(app.models)
+        let text = "var configModels = " + s + ";"
+        console.log(text)
+        let blob = new Blob([text], {type: 'text/plain'});
+        let downloadLink = document.createElement("a");
+        downloadLink.href = URL.createObjectURL(blob);
+        downloadLink.download = "model.js";
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
     }
 
     function clearLocalCache() {
