@@ -448,7 +448,7 @@
                             autoSetFontBySize();
                         } else {
                             doc.text(lines[i], honPadding, cursorY); // 在当前页的给定位置添加文本
-                            cursorY += fontSize + app.linespace; // 递增 Y 坐标位置
+                            cursorY += fontSize + parseInt(app.linespace); // 递增 Y 坐标位置
                         }
                     }
                 })
