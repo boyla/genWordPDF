@@ -22,7 +22,7 @@
     <script src="https://cdn.staticfile.org/twitter-bootstrap/5.1.1/js/bootstrap.bundle.min.js"></script>
     <script type="text/javascript" src="model.js"></script>
     <script src="jspdf.min.js"></script>
-    <script src="font-han-sans.js"></script>
+    <!--    <script src="font-han-sans.js"></script>-->
     <script src="font-simsun-normal.js"></script>
     <script src="jspdf-autotable-3.2.4.js"></script>
 </head>
@@ -195,16 +195,16 @@
                 var doc = new jsPDF('p', 'mm', 'a4');
 
                 function setFontHt() {
-                    if ('SourceHanSans-Normal' === doc.fontName) {
-                        console.log('already set ' + doc.fontName)
-                        return
-                    }
-                    doc.addFileToVFS('SourceHanSans-Normal.ttf', font_ht);
-                    doc.addFont('SourceHanSans-Normal.ttf', 'SourceHanSans-Normal', 'normal');
-                    doc.setFont('SourceHanSans-Normal');
+                    // if ('SourceHanSans-Normal' === doc.fontName) {
+                    //     console.log('already set ' + doc.fontName)
+                    //     return
+                    // }
+                    // doc.addFileToVFS('SourceHanSans-Normal.ttf', font_ht);
+                    // doc.addFont('SourceHanSans-Normal.ttf', 'SourceHanSans-Normal', 'normal');
+                    // doc.setFont('SourceHanSans-Normal');
                 }
 
-                function setFontSt() {
+                function setFontSt_() {
                     if ('simsun' === doc.fontName) {
                         console.log('already set ' + doc.fontName)
                         return
@@ -239,17 +239,16 @@
                 var title = "目录"
                 var titleWidth = doc.getStringUnitWidth(title) * doc.internal.getFontSize() / doc.internal.scaleFactor;
                 doc.setFontSize(SIZE_0);
-                setFontHt();
+                setFontSt_();
                 doc.text(title, (pdfWidth - titleWidth) / 2, cursorY_);
-                setFontSt();
                 cursorY_ += fontSize + 2;
 
                 function autoSetFontBySize() {
-                    if (doc.getFontSize() > SIZE_2) {
-                        setFontHt()
-                    } else {
-                        setFontSt()
-                    }
+                    // if (doc.getFontSize() > SIZE_2) {
+                    //     setFontHt()
+                    // } else {
+                    //     setFontSt()
+                    // }
                 }
 
                 function updateCatalog(title) {
@@ -261,7 +260,7 @@
                     }
                     doc.setPage(catalogPageIndex)
                     var currentFontSize = doc.getFontSize()
-                    var catalogSize = currentFontSize * 3 / 5;
+                    var catalogSize = currentFontSize * 6 / 7;
                     doc.setFontSize(catalogSize);
                     doc.text(title, honPadding, cursorY_);
                     // var txtW = doc.getStringUnitWidth(title) * doc.internal.getFontSize() / doc.internal.scaleFactor;
@@ -282,11 +281,11 @@
                     }
                     fontSize = SIZE_0;
                     doc.setFontSize(fontSize);
-                    setFontHt();
+                    // setFontHt();
                     var titleWidth = doc.getStringUnitWidth(title) * doc.internal.getFontSize() / doc.internal.scaleFactor;
                     doc.text(title, (pdfWidth - titleWidth) / 2, cursorY);
                     updateCatalog(title);
-                    setFontSt();
+                    // setFontSt();
                     cursorY += SIZE_0 * 2;
                     var content = app.formatModel(obj.contents[obj.selected]);
                     fontSize = SIZE_CONTENT;
@@ -371,7 +370,7 @@
                                 } catch (e) {
                                     alert(e.message);
                                 }
-                                console.log('tableJson: ' + tableJson);
+                                // console.log('tableJson: ' + tableJson);
                             }
                             var tableObj = JSON.parse(tableJson);
                             var data = tableObj['data'];
@@ -385,15 +384,17 @@
                                 margin: honPadding,
                                 theme: 'grid',
                                 tableWidth: 'auto',
-                                columnWidth: 'auto',
-                                headStyles: {
-                                    fillColor: [255, 255, 255],
-                                    textColor: 0,
-                                    lineWidth: {top: 1, right: 1, bottom: 1, left: 1},
+                                columnWidth: 'wrap',
+                                rowPageBreak: 'avoid',
+                                bodyStyles: {
+                                    halign: 'center',
+                                    valign: 'middle',
+                                    minCellWidth: 20,
+                                    minCellHeight: 0
                                 },
                                 styles: {
                                     font: 'simsun',
-                                    fontStyle: "normal"
+                                    fontStyle: "normal",
                                 }
                             };
                             doc.autoTable(table);
