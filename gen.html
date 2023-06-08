@@ -21,9 +21,10 @@
     <link href="https://cdn.staticfile.org/twitter-bootstrap/5.1.1/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.staticfile.org/twitter-bootstrap/5.1.1/js/bootstrap.bundle.min.js"></script>
     <script type="text/javascript" src="model.js"></script>
-    <script type="module" src="font-han-sans.js?v=1.1"></script>
     <script src="jspdf.min.js"></script>
-
+    <script src="font-han-sans.js"></script>
+    <script src="font-simsun-normal.js"></script>
+    <script src="jspdf-autotable-3.2.4.js"></script>
 </head>
 
 <body>
@@ -54,6 +55,11 @@
             <div class="input-group mb-3" style="width: 50%">
                 <span class="input-group-text">工期(天)：</span>
                 <input v-model="duration" type="number" class="form-control">
+            </div>
+
+            <div class="input-group mb-3" style="width: 50%">
+                <span class="input-group-text">行间距：</span>
+                <input v-model="linespace" type="number" class="form-control">
             </div>
         </div>
 
@@ -144,6 +150,7 @@
             start_date: "2023-05-01",
             end_date: "2023-05-01",
             duration: 1,
+            linespace: 0,
             state: ""
         },
         methods: {
@@ -175,28 +182,52 @@
             },
             formatModel: function (content) {
                 var ret = content
-                ret = ret.replace("{{name}}", this.name)
-                ret = ret.replace("{{address}}", this.address)
-                ret = ret.replace("{{start_date}}", this.start_date)
-                ret = ret.replace("{{end_date}}", this.end_date)
-                ret = ret.replace("{{duration}}", this.duration)
+                ret = ret.replaceAll("{{name}}", this.name)
+                ret = ret.replaceAll("{{address}}", this.address)
+                ret = ret.replaceAll("{{start_date}}", this.start_date)
+                ret = ret.replaceAll("{{end_date}}", this.end_date)
+                ret = ret.replaceAll("{{duration}}", this.duration)
                 ret = ret.trim()
                 return ret
             },
 
             genPDF: function () {
                 var doc = new jsPDF('p', 'mm', 'a4');
-                doc.addFont('SourceHanSans-Normal.ttf', 'SourceHanSans-Normal', 'normal');
-                doc.setFont('SourceHanSans-Normal', 'bold');
-                doc.setLineHeightFactor(0.5);
-                const SIZE_1 = 18;
-                const SIZE_2 = 15;
-                const SIZE_3 = 12;
-                const SIZE_CONTENT = 10;
 
-                var cursorY = 20;
+                function setFontHt() {
+                    if ('SourceHanSans-Normal' === doc.fontName) {
+                        console.log('already set ' + doc.fontName)
+                        return
+                    }
+                    doc.addFileToVFS('SourceHanSans-Normal.ttf', font_ht);
+                    doc.addFont('SourceHanSans-Normal.ttf', 'SourceHanSans-Normal', 'normal');
+                    doc.setFont('SourceHanSans-Normal');
+                }
+
+                function setFontSt() {
+                    if ('simsun' === doc.fontName) {
+                        console.log('already set ' + doc.fontName)
+                        return
+                    }
+                    doc.addFileToVFS('simsun-normal.ttf', font_st);
+                    doc.addFont('simsun-normal.ttf', 'simsun', 'normal');
+                    doc.setFont('simsun');
+                }
+
+                doc.setLineHeightFactor(1.01);
+                // doc.setLineSpacing(0.5);
+                // doc.lineHeight = (16 / doc.internal.scaleFactor); // 将像素值转换为点
+
+                const SIZE_CONTENT = 14;
+                const SIZE_3 = SIZE_CONTENT;
+                const SIZE_2 = SIZE_3 + 2;
+                const SIZE_1 = SIZE_2 + 2;
+                const SIZE_0 = SIZE_1 + 2;
+                const START_Y = 25;
+
+                var cursorY = START_Y;
                 var fontSize = SIZE_1;
-                var honPadding = 20;
+                var honPadding = 25;
                 var catalogPageIndex = 1;
                 var contentPageIndex = 2;
                 // 获取 PDF 页面的宽度和高度
@@ -204,23 +235,33 @@
                 var pdfHeight = doc.internal.pageSize.height;
                 console.log("pdfWidth: " + pdfWidth + ", pdfHeight:" + pdfHeight)
                 //生成目录
-                var cursorY_ = 20;
+                var cursorY_ = START_Y;
                 var title = "目录"
                 var titleWidth = doc.getStringUnitWidth(title) * doc.internal.getFontSize() / doc.internal.scaleFactor;
-                // doc.setFontSize(fontSize);
+                doc.setFontSize(SIZE_0);
+                setFontHt();
                 doc.text(title, (pdfWidth - titleWidth) / 2, cursorY_);
+                setFontSt();
                 cursorY_ += fontSize + 2;
+
+                function autoSetFontBySize() {
+                    if (doc.getFontSize() > SIZE_2) {
+                        setFontHt()
+                    } else {
+                        setFontSt()
+                    }
+                }
 
                 function updateCatalog(title) {
                     if (cursorY_ > 280) {
                         doc.insertPage(catalogPageIndex + 1);
                         catalogPageIndex++;
                         contentPageIndex++;
-                        cursorY_ = 20;
+                        cursorY_ = START_Y;
                     }
                     doc.setPage(catalogPageIndex)
                     var currentFontSize = doc.getFontSize()
-                    var catalogSize = currentFontSize * 2 / 3;
+                    var catalogSize = currentFontSize * 3 / 5;
                     doc.setFontSize(catalogSize);
                     doc.text(title, honPadding, cursorY_);
                     // var txtW = doc.getStringUnitWidth(title) * doc.internal.getFontSize() / doc.internal.scaleFactor;
@@ -237,14 +278,16 @@
                     if (i > 0) {
                         doc.addPage();
                         contentPageIndex++;
-                        cursorY = 20; // 重置 Y 坐标位置为页面顶部
+                        cursorY = START_Y; // 重置 Y 坐标位置为页面顶部
                     }
-                    fontSize = SIZE_1;
+                    fontSize = SIZE_0;
                     doc.setFontSize(fontSize);
+                    setFontHt();
                     var titleWidth = doc.getStringUnitWidth(title) * doc.internal.getFontSize() / doc.internal.scaleFactor;
                     doc.text(title, (pdfWidth - titleWidth) / 2, cursorY);
                     updateCatalog(title);
-                    cursorY += fontSize + 2;
+                    setFontSt();
+                    cursorY += SIZE_0 * 2;
                     var content = app.formatModel(obj.contents[obj.selected]);
                     fontSize = SIZE_CONTENT;
                     doc.setFontSize(fontSize);
@@ -253,10 +296,11 @@
                         if (cursorY > 280) { // 检查导致分页的 Y 坐标位置
                             doc.addPage();
                             contentPageIndex++;
-                            cursorY = 20; // 重置 Y 坐标位置为页面顶部
+                            cursorY = START_Y; // 重置 Y 坐标位置为页面顶部
                         }
                         //检查是否插入图片 {pdfImgName:"",width:10,height,10,url:""}
                         var imgIndex = lines[i].indexOf('{"pdfImgName');
+                        var tableIndex = lines[i].indexOf('{"pdfTable');
                         var titleIndex = lines[i].indexOf('{#');
                         if (imgIndex !== -1) {
                             console.log("addImage")
@@ -278,10 +322,10 @@
                             var scaleW = 1;
                             var scaleH = 1;
                             if (imgWidth > pdfWidth) {
-                                scaleW = pdfWidth * 0.4 / imgWidth
+                                scaleW = pdfWidth * 0.6 / imgWidth
                             }
                             if (imgHeight > pdfHeight) {
-                                scaleH = pdfHeight * 0.4 / imgHeight
+                                scaleH = pdfHeight * 0.6 / imgHeight
                             }
                             var scale = scaleW < scaleH ? scaleW : scaleH;
                             console.log("scale:" + scale)
@@ -290,37 +334,102 @@
                             if (imgHeight > (pdfHeight - cursorY)) {
                                 doc.addPage();
                                 contentPageIndex++;
-                                cursorY = 20;
+                                cursorY = START_Y;
                             }
                             // 计算图片需要插入的坐标位置，居中显示
                             var x = (pdfWidth - imgWidth) / 2;
                             // 插入图片到 PDF 中，并居中显示
                             var type = imgObj.src.substring(imgObj.src.indexOf("/") + 1, imgObj.src.indexOf(";"))
                             doc.addImage(imgObj.src, type, x, cursorY, imgWidth, imgHeight);
-                            cursorY += imgHeight + 8;
                             // if (cursorY > 280) { // 检查导致分页的 Y 坐标位置
                             //     doc.addPage();
                             //     contentPageIndex++;
                             //     cursorY = 20; // 重置 Y 坐标位置为页面顶部
                             // }
-                            fontSize = 8
+                            fontSize = SIZE_CONTENT - 4;
+                            cursorY += imgHeight + fontSize;
                             doc.setFontSize(fontSize);
                             var imgTitleWidth = doc.getStringUnitWidth(imgObj.pdfImgName) * doc.internal.getFontSize() / doc.internal.scaleFactor;
                             doc.text(imgObj.pdfImgName, (pdfWidth - imgTitleWidth) / 2, cursorY);
                             cursorY += fontSize + 2;
-                            fontSize = 10
-                            doc.setFontSize(10);
+                            fontSize = SIZE_CONTENT
+                            doc.setFontSize(fontSize);
                             //图片处理结束
+                        } else if (tableIndex !== -1) {
+                            console.log("addTable")
+                            var tableJson = "";
+                            var i_ = i;
+                            while (lines[i].indexOf("}") === -1) {
+                                tableJson += lines[i].trim();
+                                i++;
+                            }
+                            if (i > i_) {
+                                var str = lines[i].trim()
+                                tableJson += str.substring(0, str.indexOf("}")) + "}";
+                                try {
+                                    tableJson = tableJson.replace(/[\n\r]/g, '')
+                                } catch (e) {
+                                    alert(e.message);
+                                }
+                                console.log('tableJson: ' + tableJson);
+                            }
+                            var tableObj = JSON.parse(tableJson);
+                            var data = tableObj['data'];
+                            var tableName = tableObj['pdfTableName'];
+                            // var headers = data[0];
+                            // data.shift();
+                            var table = {
+                                // head: [headers],
+                                body: data,
+                                startY: cursorY,
+                                margin: honPadding,
+                                theme: 'grid',
+                                tableWidth: 'auto',
+                                columnWidth: 'auto',
+                                headStyles: {
+                                    fillColor: [255, 255, 255],
+                                    textColor: 0,
+                                    lineWidth: {top: 1, right: 1, bottom: 1, left: 1},
+                                },
+                                styles: {
+                                    font: 'simsun',
+                                    fontStyle: "normal"
+                                }
+                            };
+                            doc.autoTable(table);
+                            let table1Height = doc.lastAutoTable.finalY;
+                            var pageNum = doc.internal.getNumberOfPages();
+                            var inOnePage = pageNum === contentPageIndex;
+                            if (!inOnePage) {
+                                console.log("table multi page, pageNum:" + pageNum + ", offset: " + (pageNum - contentPageIndex));
+                                contentPageIndex = pageNum;
+                                cursorY = table1Height;
+                            } else {
+                                cursorY += table1Height;
+                            }
+                            if (cursorY > 280) {
+                                doc.addPage();
+                                contentPageIndex++;
+                                cursorY = START_Y;
+                            }
+                            fontSize = SIZE_CONTENT - 4;
+                            doc.setFontSize(fontSize);
+                            cursorY += fontSize;
+                            var tbNameWidth = doc.getStringUnitWidth(tableName) * doc.internal.getFontSize() / doc.internal.scaleFactor;
+                            doc.text(tableName, (pdfWidth - tbNameWidth) / 2, cursorY);
+                            cursorY += fontSize + 2;
+                            fontSize = SIZE_CONTENT;
+                            doc.setFontSize(fontSize);
                         } else if (titleIndex !== -1) {
                             var titleContent = ""
                             var index_ = lines[i].indexOf('{###');
-                            var titlieFontSize = SIZE_CONTENT;
+                            var titleFontSize = SIZE_3;
                             if (index_ === -1) {
                                 index_ = lines[i].indexOf('{##');
-                                titlieFontSize = SIZE_3;
+                                titleFontSize = SIZE_2;
                                 if (index_ === -1) {
                                     index_ = titleIndex;
-                                    titlieFontSize = SIZE_2;
+                                    titleFontSize = SIZE_1;
                                     titleContent = lines[i].substring(index_ + 2, lines[i].indexOf('}'))
                                 } else {
                                     titleContent = lines[i].substring(index_ + 3, lines[i].indexOf('}'))
@@ -328,16 +437,18 @@
                             } else {
                                 titleContent = lines[i].substring(index_ + 4, lines[i].indexOf('}'))
                             }
-                            doc.setFontSize(titlieFontSize);
+                            doc.setFontSize(titleFontSize);
+                            autoSetFontBySize();
                             doc.text(titleContent, honPadding, cursorY);
-                            if (titlieFontSize > SIZE_3) {
+                            if (titleFontSize > SIZE_2) {
                                 updateCatalog("    " + titleContent);
                             }
-                            cursorY += titlieFontSize + 2;
+                            cursorY += titleFontSize + 2;
                             doc.setFontSize(fontSize);
+                            autoSetFontBySize();
                         } else {
                             doc.text(lines[i], honPadding, cursorY); // 在当前页的给定位置添加文本
-                            cursorY += fontSize + 2; // 递增 Y 坐标位置
+                            cursorY += fontSize + app.linespace; // 递增 Y 坐标位置
                         }
                     }
                 })
