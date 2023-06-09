@@ -26,6 +26,7 @@
     <script src="font-simsun-normal.js"></script>
 <!--    <script src="jspdf-autotable-3.2.4.js"></script>-->
         <script src="jspdf-autotable-3.2.10.js"></script>
+<!--    <script src="jspdf-autotable-3.2.15.js"></script>-->
 </head>
 
 <body>
@@ -385,14 +386,12 @@
                                 margin: honPadding,
                                 theme: 'grid',
                                 tableWidth: 'auto',
-                                columnWidth: 'wrap',
                                 rowPageBreak: 'avoid',
                                 bodyStyles: {
                                     halign: 'center',
                                     valign: 'middle',
                                     minCellWidth: 15,
                                     cellWidth: 'auto',
-                                    minCellHeight: 0
                                 },
                                 styles: {
                                     font: 'simsun',
@@ -400,15 +399,16 @@
                                 }
                             };
                             doc.autoTable(table);
-                            let table1Height = doc.lastAutoTable.finalY;
+                            let tableHeight = doc.lastAutoTable.finalY;
+                            console.log(`tableHeight: ${tableHeight}`);
                             var pageNum = doc.internal.getNumberOfPages();
                             var inOnePage = pageNum === contentPageIndex;
                             if (!inOnePage) {
                                 console.log("table multi page, pageNum:" + pageNum + ", offset: " + (pageNum - contentPageIndex));
                                 contentPageIndex = pageNum;
-                                cursorY = table1Height;
+                                cursorY = tableHeight;
                             } else {
-                                cursorY += table1Height;
+                                cursorY = tableHeight;
                             }
                             if (cursorY > 280) {
                                 doc.addPage();
