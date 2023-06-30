@@ -2,7 +2,7 @@
 <html>
 
 <head>
-    <title>配置模版</title>
+    <title>配置小节</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta http-equiv="Cache-Control" content="only-if-cached">
@@ -36,14 +36,14 @@
     <script type="text/javascript" src="vue2.7.js"></script>
     <link href="https://cdn.staticfile.org/twitter-bootstrap/5.1.1/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.staticfile.org/twitter-bootstrap/5.1.1/js/bootstrap.bundle.min.js"></script>
-    <script type="text/javascript" src="model.js"></script>
+    <script type="text/javascript" src="model2.js"></script>
 
 </head>
 
 <body>
 <div id="app">
     <div class="container-fluid p-5 bg-light text-black text-center">
-        <h4 style="align-content: center">配置模版</h4>
+        <h4 style="align-content: center">配置小节</h4>
         <div style="display: flex;flex-direction: row;justify-content: center;text-align: center; line-height: 48px">
 
             <button type="button" class="btn btn-warning"
@@ -79,7 +79,7 @@
                 <div class="card border-info bg-light"
                      style="border-radius:25px;padding: 1.5% 3% 1.5% 3%">
                     <ul class="list-group" style="list-style: none;margin-top:0;padding:0%;">
-                        <li v-for="obj in models"
+                        <li v-for="obj in models2"
                             style="margin-top: 1.5%;margin-bottom: 1.5%;padding:0">
                             <div class="card"
                                  style="border-radius:25px;padding: 16px;background: white">
@@ -89,12 +89,13 @@
                                         {{ obj.contentCode +"：" + obj.title }}
                                         </span>
                                         <span style="margin-top: 10px">内容模版:</span>
-                                        <select v-model="obj.selected" @change="selectOption" style="width: 90%">
-                                            <option v-for="(option, index) in obj.contents" :key="index" :value="index"
-                                                    style="height: auto">
-                                                {{ option }}
-                                            </option>
-                                        </select>
+                                        <!--                                        <select v-model="obj.selected" @change="selectOption" style="width: 90%">-->
+                                        <!--                                            <option-->
+                                        <!--                                                    style="height: auto">-->
+                                        <!--                                                {{ obj.contentCode +"." + obj.content }}-->
+                                        <!--                                            </option>-->
+                                        <!--                                        </select>-->
+                                        <span style="margin-top: 10px">{{ obj.content.substr(0,30) }}</span>
                                     </div>
                                     <button type="button" class="btn btn-block btn-warning"
                                             @click="configModel(obj)"
@@ -120,25 +121,20 @@
                      style="border-radius:25px;padding: 3% 3% 3% 3%;max-width: 900px">
                     <span style="font-size: 22px;color:black;font-weight: 400;line-height: 23px;margin-bottom: 20px">新增内容</span>
                     <div id="form">
-                        <label>章节名称:</label>
+                        <label>小节名称:</label>
+                        <!--                        <input id="inputName" type="text" placeholder="输入名称">-->
                         <div id="inputName" class="textarea" contenteditable="true" data-text="输入名称"></div>
                         <br>
                         <label>内容代码:</label>
                         <div id="contentCode" class="textarea" contenteditable="true" data-text="输入内容代码"></div>
                         <br><br>
 
-                        <span style="color: olivedrab">内容模版1:</span><br>
+                        <span style="color: olivedrab">小节内容模版:</span><br>
                         <div id="input1" class="textarea" contenteditable="true" data-text="输入模版内容"></div>
-                        <!--                        <input id="input1" type="text" name="content[]" placeholder="输入内容"><br><br>-->
 
                     </div>
-                    <div id="dbtn">
-                        <button type="button" class="btn btn-block btn-info text-white" style="margin-top: 30px"
-                                onclick="addContent()" id="addButton">
-                            新增内容模版
-                        </button>
-                        <br><br>
-                    </div>
+
+                    <br><br>
                     <button type="button" class="btn btn-block btn-success" @click="addModel" id="btnSubmit">
                         提交
                     </button>
@@ -154,7 +150,7 @@
     var app = new Vue({
         el: "#app",
         data: {
-            models: [],
+            models2: [],
             retLi: [],
             selected: -1,
             name: "XX项目",
@@ -166,48 +162,31 @@
             selectOption: function () {
 
             },
-            useModel: function (model) {
-                if (model.inUse) {
-                    this.retLi = this.retLi.filter(e => e.title !== model.title)
-                } else {
-                    this.retLi.push(model)
-                }
-                model.inUse = !model.inUse
-            },
 
             configModel: function (obj) {
                 resetEdit()
                 document.getElementById("inputName").innerHTML = obj.title;
+                document.getElementById("input1").innerHTML = obj.content;
                 document.getElementById("contentCode").innerHTML = obj.contentCode;
-                for (var i = 0; i < obj.contents.length; i++) {
-                    var item = obj.contents[i]
-                    var id = "input" + (i + 1)
-                    var input = document.getElementById(id)
-                    if (!input) {
-                        addContent()
-                    }
-                    input = document.getElementById(id)
-                    input.innerHTML = item;
-                }
             },
             delModel: function (obj) {
-                app.models = app.models.filter(e => e.title !== obj.title)
+                app.models2 = app.models2.filter(e => e.contentCode !== obj.contentCode)
             },
         },
     })
 
     function refreshCache() {
-        var cacheStr = localStorage.getItem('models')
+        var cacheStr = localStorage.getItem('models2')
         if (cacheStr == null || cacheStr.length === 0) {
             console.log("use config:" + cacheStr)
-            app.models = configModels
+            app.models2 = configModels2
         } else {
             console.log("use cache:" + cacheStr)
-            app.models = JSON.parse(cacheStr);
+            app.models2 = JSON.parse(cacheStr);
         }
     }
 
-    // localStorage.removeItem('models')
+    // localStorage.removeItem('models2')
     refreshCache()
 
     function resetEdit() {
@@ -233,55 +212,51 @@
             alert("请输入章节名称")
             return
         }
-        var ret
-        for (var i = 0; i < app.models.length; i++) {
-            var item = app.models[i]
+        var ret = -1
+        for (var i = 0; i < app.models2.length; i++) {
+            var item = app.models2[i]
             if (contentCode === item.contentCode) {
                 inList = true;
-                ret = item;
+                ret = i;
                 break;
             }
         }
-        var contentLi = []
-        for (var j = 1; j <= inputSum; j++) {
-            var input = document.getElementById("input" + j).innerHTML
-            if (input != null && input.length > 0) {
-                contentLi.push(input)
-            }
-        }
+        var content = ""
+        var input = document.getElementById("input1").innerHTML
+        content = input
         console.log("inList: " + inList)
         if (inList) {
-            ret.contents = contentLi
-            ret.title = inputName
-            ret.contentCode = contentCode
+            app.models2[ret].title = inputName
+            app.models2[ret].contentCode = contentCode
+            app.models2[ret].content = content
         } else {
             let obj = {
                 title: inputName,
                 contentCode: contentCode,
-                contents: contentLi,
-                selected: 0,
+                content: content,
+                selected: 1,
             }
-            app.models.push(obj)
+            app.models2.push(obj)
         }
     }
 
     function saveConfig() {
-        localStorage.removeItem('models')
-        localStorage.setItem('models', JSON.stringify(app.models));
+        localStorage.removeItem('models2')
+        localStorage.setItem('models2', JSON.stringify(app.models2));
         alert("保存成功")
-        var s = localStorage.getItem('models')
-        console.log("var configModels = " + s + ";")
+        var s = localStorage.getItem('models2')
+        console.log("var configModels2 = " + s + ";")
         // refreshCache()
     }
 
     function downloadConfig() {
-        var s = JSON.stringify(app.models)
-        let text = "var configModels = " + s + ";"
+        var s = JSON.stringify(app.models2)
+        let text = "var configModels2 = " + s + ";"
         console.log(text)
         let blob = new Blob([text], {type: 'text/plain'});
         let downloadLink = document.createElement("a");
         downloadLink.href = URL.createObjectURL(blob);
-        downloadLink.download = "model.js";
+        downloadLink.download = "model2.js";
         document.body.appendChild(downloadLink);
         downloadLink.click();
     }
@@ -308,21 +283,21 @@
                         for (var j = 0; j < arr.length; j++) {
                             var title = arr[j].title;
                             var innerIndex = -1;
-                            for (var k = 0; k < app.models.length; k++) {
-                                if (app.models[k].title === title) {
+                            for (var k = 0; k < app.models2.length; k++) {
+                                if (app.models2[k].title === title) {
                                     innerIndex = k;
                                     break;
                                 }
                             }
                             if (innerIndex > -1) {
                                 // 已存在章节名，在原有内容后追加
-                                app.models[innerIndex].contents.push.apply(app.models[innerIndex].contents, arr[j].contents);
+                                app.models2[innerIndex].contents.push.apply(app.models2[innerIndex].contents, arr[j].contents);
                             } else {
                                 // 不存在，新增章节
-                                app.models.push(arr[j]);
+                                app.models2.push(arr[j]);
                             }
                         }
-                        console.log(app.models);
+                        console.log(app.models2);
                     }
                 }
             }
@@ -334,8 +309,8 @@
     readUploadConfig();
 
     function clearLocalCache() {
-        localStorage.removeItem('models')
-        var s = localStorage.getItem('models')
+        localStorage.removeItem('models2')
+        var s = localStorage.getItem('models2')
         console.log("clear cache " + s)
         alert("已清除缓存")
         // refreshCache()
