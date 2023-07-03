@@ -360,14 +360,6 @@
                 doc.text(title, (pdfWidth - titleWidth) / 2, cursorY_);
                 cursorY_ += fontSize + 2;
 
-                function autoSetFontBySize() {
-                    // if (doc.getFontSize() > SIZE_2) {
-                    //     setFontHt()
-                    // } else {
-                    //     setFontSt()
-                    // }
-                }
-
                 function updateCatalog(title) {
                     if (cursorY_ > 280) {
                         doc.insertPage(catalogPageIndex + 1);
@@ -398,11 +390,9 @@
                     }
                     fontSize = SIZE_0;
                     doc.setFontSize(fontSize);
-                    // setFontHt();
                     var titleWidth = doc.getStringUnitWidth(title) * doc.internal.getFontSize() / doc.internal.scaleFactor;
                     doc.text(title, (pdfWidth - titleWidth) / 2, cursorY);
                     updateCatalog(title);
-                    // setFontSt();
                     cursorY += SIZE_0 * 2;
                     var content = app.formatModel(obj.contents[obj.selected]);
                     fontSize = SIZE_CONTENT;
@@ -556,14 +546,13 @@
                                 titleContent = lines[i].substring(index_ + 4, lines[i].indexOf('}'))
                             }
                             doc.setFontSize(titleFontSize);
-                            autoSetFontBySize();
+                            cursorY += titleFontSize + 2;
                             doc.text(titleContent, honPadding, cursorY);
                             if (titleFontSize > SIZE_2) {
                                 updateCatalog("    " + titleContent);
                             }
                             cursorY += titleFontSize + 2;
                             doc.setFontSize(fontSize);
-                            autoSetFontBySize();
                         } else {
                             doc.text(lines[i], honPadding, cursorY); // 在当前页的给定位置添加文本
                             cursorY += fontSize + parseInt(app.linespace); // 递增 Y 坐标位置
@@ -647,7 +636,7 @@
             return;
         }
         app.customChapter = obj;
-        var checkStr = obj.contentCode.substring(0, obj.contentCode.indexOf("_"));
+        var checkStr = obj.contentCode.substring(0, obj.contentCode.indexOf("-"));
         if (checkStr === null || checkStr.length < 1) {
             alert("无可用配置");
             return;
