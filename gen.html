@@ -548,7 +548,14 @@
                                 titleContent = lines[i].substring(index_ + 4, lines[i].indexOf('}'))
                             }
                             doc.setFontSize(titleFontSize);
-                            cursorY += titleFontSize + 2;
+                            if (cursorY > START_Y) {
+                                if ((cursorY + 2 * titleFontSize + 4) > 280) {
+                                    contentPageIndex++;
+                                    cursorY = START_Y;
+                                } else {
+                                    cursorY += titleFontSize + 2;
+                                }
+                            }
                             doc.text(titleContent, honPadding, cursorY);
                             if (titleFontSize > SIZE_2) {
                                 updateCatalog("    " + titleContent);

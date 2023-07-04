@@ -43,7 +43,7 @@
 <body>
 <div id="app">
     <div class="container-fluid p-5 bg-light text-black text-center">
-        <h4 style="align-content: center">配置小节</h4>
+        <h4 style="align-content: center">配置节模版</h4>
         <div style="display: flex;flex-direction: row;justify-content: center;text-align: center; line-height: 48px">
 
             <button type="button" class="btn btn-warning"
@@ -221,7 +221,7 @@
                 break;
             }
         }
-        var content = document.getElementById("input1").innerHTML.replaceAll("<br>", "\n") + "\n\n"
+        var content = document.getElementById("input1").innerHTML.replaceAll("<br>", "").trim()
         console.log("inList: " + inList)
         if (inList) {
             app.models2[ret].title = inputName
