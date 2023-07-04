@@ -339,9 +339,9 @@
 
                 const SIZE_CONTENT = 14;
                 const SIZE_3 = SIZE_CONTENT;
-                const SIZE_2 = SIZE_3 + 2;
-                const SIZE_1 = SIZE_2 + 2;
-                const SIZE_0 = SIZE_1 + 2;
+                const SIZE_2 = SIZE_3 + 1;
+                const SIZE_1 = SIZE_2 + 1;
+                const SIZE_0 = 20;
                 const START_Y = 25;
 
                 var cursorY = START_Y;
@@ -395,7 +395,7 @@
                     var titleWidth = doc.getStringUnitWidth(title) * doc.internal.getFontSize() / doc.internal.scaleFactor;
                     doc.text(title, (pdfWidth - titleWidth) / 2, cursorY);
                     updateCatalog(title);
-                    cursorY += SIZE_0 * 2;
+                    cursorY += SIZE_0 + SIZE_CONTENT;
                     var content = app.formatModel(obj.contents[obj.selected]);
                     fontSize = SIZE_CONTENT;
                     doc.setFontSize(fontSize);
@@ -503,6 +503,7 @@
                                 styles: {
                                     font: 'simsun',
                                     fontStyle: "normal",
+                                    fontSize: 12,
                                 }
                             };
                             doc.autoTable(table);
@@ -549,18 +550,19 @@
                             }
                             doc.setFontSize(titleFontSize);
                             if (cursorY > START_Y) {
-                                if ((cursorY + 2 * titleFontSize + 4) > 280) {
+                                if ((cursorY + 2 * SIZE_3) >= 280) {
+                                    doc.addPage();
                                     contentPageIndex++;
                                     cursorY = START_Y;
                                 } else {
-                                    cursorY += titleFontSize + 2;
+                                    // cursorY += SIZE_3;
                                 }
                             }
                             doc.text(titleContent, honPadding, cursorY);
                             if (titleFontSize > SIZE_2) {
                                 updateCatalog("    " + titleContent);
                             }
-                            cursorY += titleFontSize + 2;
+                            cursorY += SIZE_3;
                             doc.setFontSize(fontSize);
                         } else {
                             doc.text(lines[i], honPadding, cursorY); // 在当前页的给定位置添加文本

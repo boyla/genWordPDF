@@ -221,7 +221,7 @@
                 break;
             }
         }
-        var content = document.getElementById("input1").innerHTML.replaceAll("<br>", "").trim()
+        var content = document.getElementById("input1").innerHTML.replaceAll("<br>", "").trimEnd()
         console.log("inList: " + inList)
         if (inList) {
             app.models2[ret].title = inputName
