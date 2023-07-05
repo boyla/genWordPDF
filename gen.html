@@ -40,6 +40,8 @@
     <script src="jspdf.min.js"></script>
     <!--    <script src="font-han-sans.js"></script>-->
     <script src="font-simsun-normal.js"></script>
+    <!--    <script src="simsun-bold.js"></script>-->
+    <script src="font-simsun-bold.js"></script>
     <!--    <script src="jspdf-autotable-3.2.4.js"></script>-->
     <script src="jspdf-autotable-3.2.10.js"></script>
     <!--    <script src="jspdf-autotable-3.2.15.js"></script>-->
@@ -328,9 +330,21 @@
                         console.log('already set ' + doc.fontName)
                         return
                     }
+
                     doc.addFileToVFS('simsun-normal.ttf', font_st);
                     doc.addFont('simsun-normal.ttf', 'simsun', 'normal');
-                    doc.setFont('simsun');
+                    doc.setFont('simsun', 'normal');
+                }
+
+                function setFontStb() {
+                    if ('font-simsun' === doc.fontName) {
+                        console.log('already set ' + doc.fontName)
+                        return
+                    }
+
+                    doc.addFileToVFS('font-simsun-bold.ttf', font_stb);
+                    doc.addFont('font-simsun-bold.ttf', 'font-simsun', 'bold');
+                    doc.setFont('font-simsun', 'bold');
                 }
 
                 doc.setLineHeightFactor(1.01);
@@ -528,7 +542,7 @@
                             cursorY += fontSize;
                             var tbNameWidth = doc.getStringUnitWidth(tableName) * doc.internal.getFontSize() / doc.internal.scaleFactor;
                             doc.text(tableName, (pdfWidth - tbNameWidth) / 2, cursorY);
-                            cursorY += fontSize + 2;
+                            cursorY += SIZE_CONTENT + 2;
                             fontSize = SIZE_CONTENT;
                             doc.setFontSize(fontSize);
                         } else if (titleIndex !== -1) {
@@ -558,7 +572,9 @@
                                     // cursorY += SIZE_3;
                                 }
                             }
+                            setFontStb();
                             doc.text(titleContent, honPadding, cursorY);
+                            setFontSt_();
                             if (titleFontSize > SIZE_2) {
                                 updateCatalog("    " + titleContent);
                             }
