@@ -2,7 +2,7 @@
 <html>
 
 <head>
-    <title>配置节</title>
+    <title>配置小节模版</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta http-equiv="Cache-Control" content="only-if-cached">
@@ -36,31 +36,14 @@
     <script type="text/javascript" src="vue2.7.js"></script>
     <link href="https://cdn.staticfile.org/twitter-bootstrap/5.1.1/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.staticfile.org/twitter-bootstrap/5.1.1/js/bootstrap.bundle.min.js"></script>
-    <script type="text/javascript" src="model2.js"></script>
     <script type="text/javascript" src="model3.js"></script>
-    <style>
-        .popup {
-            display: none;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background-color: #222;
-            width: 100%;
-            height: 100%;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            overflow: scroll;
-            flex-direction: column;
-        }
-    </style>
+
 </head>
 
 <body>
 <div id="app">
     <div class="container-fluid p-5 bg-light text-black text-center">
-        <h4 style="align-content: center">配置节模版</h4>
-        <a href="config3.html" style="margin: 15px;" target="_blank">配置小节模版</a>
+        <h4 style="align-content: center">配置小节模版</h4>
         <div style="display: flex;flex-direction: row;justify-content: center;text-align: center; line-height: 48px">
 
             <button type="button" class="btn btn-warning"
@@ -96,7 +79,7 @@
                 <div class="card border-info bg-light"
                      style="border-radius:25px;padding: 1.5% 3% 1.5% 3%">
                     <ul class="list-group" style="list-style: none;margin-top:0;padding:0%;">
-                        <li v-for="obj in models2"
+                        <li v-for="obj in models3"
                             style="margin-top: 1.5%;margin-bottom: 1.5%;padding:0">
                             <div class="card"
                                  style="border-radius:25px;padding: 16px;background: white">
@@ -149,12 +132,6 @@
                         <span style="color: olivedrab">小节内容模版:</span><br>
                         <div id="input1" class="textarea" contenteditable="true" data-text="输入模版内容"></div>
 
-                        <button type="button" class="btn btn-block btn-primary"
-                                @click="openPopup()"
-                                style="width: 14%;border-radius:15px;margin-top:15px;margin-bottom:15px;">
-                            使用模版生成内容
-                        </button>
-
                     </div>
 
                     <br><br>
@@ -164,78 +141,8 @@
                 </div>
             </div>
         </div>
-
-        <div id="popup" class="popup">
-            <span style="color: white;font-size: 25px;height: 25px;padding: 25px">组合小节内容</span>
-            <div style="display: flex;flex-direction: row;height: 48px; line-height: 48px">
-                <button type="button" style="margin-left: 25px"
-                        onclick="confirConfig3()">确定
-                </button>
-                <button type="button" style="margin-left: 25px"
-                        onclick="closePopup()">关闭
-                </button>
-            </div>
-            <div class="row" style="padding-top: 25px;text-align: left">
-                <div class="col">
-                    <div style="display: flex;flex-direction: row;height: 48px;justify-content: center;text-align: center; line-height: 48px">
-                        <h4 algin="center" style="color: white">选择小节模版</h4>
-                    </div>
-                    <div class="card border-info bg-light"
-                         style="margin-top: 25px;border-radius:25px;padding: 1.5% 3% 1.5% 3%">
-                        <ul class="list-group" style="list-style: none;margin-top:0;padding:0%;">
-                            <li v-for="obj in availableLi3"
-                                style="margin-top: 1.5%;margin-bottom: 1.5%;padding:0">
-                                <div class="card"
-                                     style="border-radius:25px;padding: 16px;background: white">
-                                    <div style="display: flex;flex-direction: row" v-if="obj">
-                                        <div style="display: flex;flex-direction: column;width: 84%">
-                                        <span style="font-size: 22px;color:black;font-weight: 400;line-height: 23px;">
-                                            {{ obj.contentCode +"：" + obj.title }}
-                                        </span>
-                                            <span style="margin-top: 10px">内容模版:</span>
-                                            <span style="margin-top: 10px">{{obj.content.substring(0,25)}}</span>
-                                        </div>
-                                        <button type="button" class="btn btn-block btn-primary"
-                                                @click="useModel3(obj)"
-                                                style="width: 14%;border-radius:15px;margin-left:2%;margin-top:15px;margin-bottom:15px;">
-                                            使用
-                                        </button>
-                                    </div>
-
-                                </div>
-
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-
-                <div class="col">
-                    <div style="display: flex;flex-direction: row;height: 48px;justify-content: center;text-align: center; line-height: 48px">
-                        <h4 style="align-content: center;color: white">结果预览</h4>
-                    </div>
-                    <div id="resultLi2" class="card"
-                         style="background-color:white;margin-top: 25px;border-radius:25px;padding:16px;"
-                         v-if="retLi3.length>0">
-                            <span style="font-size: 22px;color:black;font-weight: 400;line-height: 23px;">
-                                {{ "节内容：" }}
-                            </span>
-                        <ul style="list-style: none;margin-top:0;padding-top:0;">
-                            <li v-for="(obj,i) in retLi3" style="padding-top: 16px;padding-bottom: 16px">
-                                <div style="display: flex;flex-direction: row" v-if="obj">
-                                    <div style="display: flex;flex-direction: column;">
-                                        <pre style="margin-top: 15px; white-space: pre-wrap;max-width: 700px">{{
-                                            formatTitle(i, obj.title)+"\n"+obj.content
-                                        }}</pre>
-                                    </div>
-                                </div>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
-
     </div>
+
 </div>
 
 
@@ -243,11 +150,7 @@
     var app = new Vue({
         el: "#app",
         data: {
-            models2: [],
             models3: [],
-            availableLi3: [],
-            retLi3: [],
-            inputCodeExist: false,
             retLi: [],
             selected: -1,
             name: "XX项目",
@@ -267,45 +170,23 @@
                 document.getElementById("contentCode").innerHTML = obj.contentCode;
             },
             delModel: function (obj) {
-                app.models2 = app.models2.filter(e => e.contentCode !== obj.contentCode)
-            },
-            useModel3: function (model) {
-                this.retLi3.push(model)
+                app.models3 = app.models3.filter(e => e.contentCode !== obj.contentCode)
             },
         },
     })
 
     function refreshCache() {
-        var cacheStr = localStorage.getItem('models2')
+        var cacheStr = localStorage.getItem('models3')
         if (cacheStr == null || cacheStr.length === 0) {
             console.log("use config:" + cacheStr)
-            app.models2 = configModels2
+            app.models3 = configModels3
         } else {
             console.log("use cache:" + cacheStr)
-            app.models2 = JSON.parse(cacheStr)
+            app.models3 = JSON.parse(cacheStr);
         }
-        refresh3()
-        var sortFunc = function (a, b) {
-            if (typeof a.contentCode !== 'string' || typeof b.contentCode !== 'string') {
-                return 1;
-            }
-            var fieldA = a.contentCode.toLowerCase(); // 将字段转换为小写以进行不区分大小写的排序
-            var fieldB = b.contentCode.toLowerCase(); // 将字段转换为小写以进行不区分大小写的排序
-
-            // 使用 localeCompare 进行字符串的比较
-            if (fieldA < fieldB) {
-                return -1;
-            }
-            if (fieldA > fieldB) {
-                return 1;
-            }
-            return 0; // 相等的情况
-        };
-        app.model2 = app.models2.sort(sortFunc);
-        app.models3 = app.models3.sort(sortFunc);
     }
 
-    // localStorage.removeItem('models2')
+    // localStorage.removeItem('models3')
     refreshCache()
 
     function resetEdit() {
@@ -332,8 +213,8 @@
             return
         }
         var ret = -1
-        for (var i = 0; i < app.models2.length; i++) {
-            var item = app.models2[i]
+        for (var i = 0; i < app.models3.length; i++) {
+            var item = app.models3[i]
             if (contentCode === item.contentCode) {
                 inList = true;
                 ret = i;
@@ -343,9 +224,9 @@
         var content = document.getElementById("input1").innerHTML.replaceAll("<br>", "").trimEnd()
         console.log("inList: " + inList)
         if (inList) {
-            app.models2[ret].title = inputName
-            app.models2[ret].contentCode = contentCode
-            app.models2[ret].content = content
+            app.models3[ret].title = inputName
+            app.models3[ret].contentCode = contentCode
+            app.models3[ret].content = content
         } else {
             let obj = {
                 title: inputName,
@@ -353,27 +234,27 @@
                 content: content,
                 selected: 1,
             }
-            app.models2.push(obj)
+            app.models3.push(obj)
         }
     }
 
     function saveConfig() {
-        localStorage.removeItem('models2')
-        localStorage.setItem('models2', JSON.stringify(app.models2));
+        localStorage.removeItem('models3')
+        localStorage.setItem('models3', JSON.stringify(app.models3));
         alert("保存成功")
-        var s = localStorage.getItem('models2')
-        console.log("var configModels2 = " + s + ";")
+        var s = localStorage.getItem('models3')
+        console.log("var configmodels3 = " + s + ";")
         // refreshCache()
     }
 
     function downloadConfig() {
-        var s = JSON.stringify(app.models2)
-        let text = "var configModels2 = " + s + ";"
+        var s = JSON.stringify(app.models3)
+        let text = "var configModels3 = " + s + ";"
         console.log(text)
         let blob = new Blob([text], {type: 'text/plain'});
         let downloadLink = document.createElement("a");
         downloadLink.href = URL.createObjectURL(blob);
-        downloadLink.download = "model2.js";
+        downloadLink.download = "model3.js";
         document.body.appendChild(downloadLink);
         downloadLink.click();
     }
@@ -400,22 +281,23 @@
                         for (var j = 0; j < arr.length; j++) {
                             var contentCode = arr[j].contentCode;
                             var innerIndex = -1;
-                            for (var k = 0; k < app.models2.length; k++) {
-                                if (app.models2[k].contentCode === contentCode) {
+                            for (var k = 0; k < app.models3.length; k++) {
+                                if (app.models3[k].contentCode === contentCode) {
                                     innerIndex = k;
                                     break;
                                 }
                             }
                             if (innerIndex > -1) {
                                 // 已存在章节名，在原有内容后追加
-                                app.models2[innerIndex].content = arr[j].content;
-                                app.models2[innerIndex].title = arr[j].title;
+                                app.models3[innerIndex].content = arr[j].content;
+                                app.models3[innerIndex].title = arr[j].title;
+
                             } else {
                                 // 不存在，新增章节
-                                app.models2.push(arr[j]);
+                                app.models3.push(arr[j]);
                             }
                         }
-                        console.log(app.models2);
+                        console.log(app.models3);
                     }
                 }
             }
@@ -427,8 +309,8 @@
     readUploadConfig();
 
     function clearLocalCache() {
-        localStorage.removeItem('models2')
-        var s = localStorage.getItem('models2')
+        localStorage.removeItem('models3')
+        var s = localStorage.getItem('models3')
         console.log("clear cache " + s)
         alert("已清除缓存")
         // refreshCache()
@@ -459,83 +341,6 @@
         form.appendChild(input);
     }
 
-    function openPopup() {
-        var contentCode = document.getElementById('contentCode').innerHTML;
-        var title = document.getElementById('inputName').innerHTML;
-        var content = document.getElementById('input1').innerHTML;
-        app.inputCodeExist = false;
-        if (typeof contentCode !== "string" || contentCode.length < 1) {
-            app.availableLi3 = app.models3
-        } else {
-            var firstDashIndex = contentCode.indexOf("-");
-            var secondDashIndex = contentCode.indexOf("-", firstDashIndex + 1);
-            var idStr = contentCode.substring(0, secondDashIndex);
-            if (idStr === null || idStr.length < 1) {
-                alert("无可用配置");
-                return;
-            }
-            app.availableLi3 = app.models3.filter(function (subcontent) {
-                return subcontent.contentCode.indexOf(idStr) > -1 || subcontent.contentCode.indexOf('TY' + idStr.substring(2)) > -1;
-            });
-            if (app.availableLi3 == null || app.availableLi3.length < 1) {
-                alert("无可用配置");
-                return;
-            } else {
-                app.inputCodeExist = true;
-            }
-        }
-        var popup = document.getElementById('popup');
-        popup.style.display = 'flex';
-    }
-
-    function refresh3() {
-        var cacheStr = localStorage.getItem('models3')
-        if (cacheStr == null || cacheStr.length === 0) {
-            console.log("use config:" + cacheStr)
-            app.models3 = configModels3
-        } else {
-            console.log("use cache:" + cacheStr)
-            app.models3 = JSON.parse(cacheStr);
-        }
-    }
-
-    function closePopup() {
-        var popup = document.getElementById('popup');
-        popup.style.display = 'none';
-        app.retLi3 = [];
-    }
-
-    function confirConfig3() {
-        if (app.retLi3.length > 0) {
-            var content = "";
-            for (let i = 0; i < app.retLi3.length; i++) {
-                content += "{##" + formatTitle(i, app.retLi3[i].title) + "}\n";
-                content += app.retLi3[i].content + "\n";
-            }
-            document.getElementById('input1').innerHTML = content;
-        }
-        document.getElementById('popup').style.display = 'none';
-        app.retLi3 = [];
-    }
-
-    const arr = ["一", "二", "三", "四", "五", "六", "七", "八", "九", "十"]
-    const ten = "十"
-    const end2 = "、 "
-    function formatTitle(i, title) {
-        if (i < 10) {
-            return arr[i] + end2 + title
-        }
-        var high = Math.floor(i / 10)
-        var low = i % 10
-        console.log("ten:" + high + " Low: " + low)
-        if (low === 9) {
-            return arr[high] + ten + end2 + title
-        }
-        if (high === 1) {
-            return ten + arr[low] + end2 + title
-        }
-        return arr[high - 1] + ten + arr[low] + end2 + title
-    }
 </script>
 
 </body>
