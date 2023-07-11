@@ -60,7 +60,7 @@
             </div>
 
             <div class="input-group mb-2" style="width: 50%">
-                <span class="input-group-text">施工地点：</span>
+                <span class="input-group-text">建设地点：</span>
                 <input v-model="address" type="text" class="form-control">
             </div>
 
@@ -74,8 +74,43 @@
                 <input v-model="end_date" type="date" class="form-control">
             </div>
 
+            <div class="input-group mb-2" style="width: 50%">
+                <span class="input-group-text">建设规模：</span>
+                <input v-model="jsgm" type="text" class="form-control">
+            </div>
+
+            <div class="input-group mb-2" style="width: 50%">
+                <span class="input-group-text">标段划分：</span>
+                <input v-model="bdhf" type="text" class="form-control">
+            </div>
+
+            <div class="input-group mb-2" style="width: 50%">
+                <span class="input-group-text">资金来源：</span>
+                <input v-model="zjly" type="text" class="form-control">
+            </div>
+
+            <div class="input-group mb-2" style="width: 50%">
+                <span class="input-group-text">质量标准：</span>
+                <input v-model="zlbz" type="text" class="form-control">
+            </div>
+
+            <div class="input-group mb-2" style="width: 50%">
+                <span class="input-group-text">招标范围：</span>
+                <input v-model="zbfw" type="text" class="form-control">
+            </div>
+
+            <div class="input-group mb-2" style="width: 50%">
+                <span class="input-group-text">出资比例：</span>
+                <input v-model="czbl" type="text" class="form-control">
+            </div>
+
+            <div class="input-group mb-2" style="width: 50%">
+                <span class="input-group-text">资金落实情况：</span>
+                <input v-model="zjlsqk" type="text" class="form-control">
+            </div>
+
             <div class="input-group mb-3" style="width: 50%">
-                <span class="input-group-text">工期(天)：</span>
+                <span class="input-group-text">工期(日历天)：</span>
                 <input v-model="duration" type="number" class="form-control">
             </div>
 
@@ -250,6 +285,13 @@
             selected: -1,
             name: "XX项目",
             address: "成都市",
+            jsgm: "",
+            bdhf: "",
+            zjly: "",
+            zlbz: "",
+            zbfw: "",
+            czbl: "",
+            zjlsqk: "",
             start_date: "2023-05-01",
             end_date: "2023-05-01",
             duration: 1,
@@ -308,6 +350,13 @@
                 ret = ret.replaceAll("{{start_date}}", this.start_date)
                 ret = ret.replaceAll("{{end_date}}", this.end_date)
                 ret = ret.replaceAll("{{duration}}", this.duration)
+                ret = ret.replaceAll("{{jsgm}}", this.jsgm)
+                ret = ret.replaceAll("{{bdhf}}", this.bdhf)
+                ret = ret.replaceAll("{{zjly}}", this.zjly)
+                ret = ret.replaceAll("{{zlbz}}", this.zlbz)
+                ret = ret.replaceAll("{{zbfw}}", this.zbfw)
+                ret = ret.replaceAll("{{czbl}}", this.czbl)
+                ret = ret.replaceAll("{{zjlsqk}}", this.zjlsqk)
                 ret = ret.trim()
                 return ret
             },
@@ -330,7 +379,6 @@
                         console.log('already set ' + doc.fontName)
                         return
                     }
-
                     doc.addFileToVFS('simsun-normal.ttf', font_st);
                     doc.addFont('simsun-normal.ttf', 'simsun', 'normal');
                     doc.setFont('simsun', 'normal');
@@ -341,7 +389,6 @@
                         console.log('already set ' + doc.fontName)
                         return
                     }
-
                     doc.addFileToVFS('font-simsun-bold.ttf', font_stb);
                     doc.addFont('font-simsun-bold.ttf', 'font-simsun', 'bold');
                     doc.setFont('font-simsun', 'bold');
@@ -443,11 +490,13 @@
                             console.log("imgWidth:" + imgWidth + ", imgHeight:" + imgHeight)
                             var scaleW = 1;
                             var scaleH = 1;
-                            if (imgWidth > pdfWidth) {
-                                scaleW = pdfWidth * 0.6 / imgWidth
+                            var maxW = pdfWidth - honPadding * 2;
+                            if (imgWidth > maxW) {
+                                scaleW = maxW / imgWidth
                             }
-                            if (imgHeight > pdfHeight) {
-                                scaleH = pdfHeight * 0.6 / imgHeight
+                            var maxH = pdfHeight - honPadding * 2;
+                            if (imgHeight > maxH) {
+                                scaleH = maxH / imgHeight
                             }
                             var scale = scaleW < scaleH ? scaleW : scaleH;
                             console.log("scale:" + scale)
