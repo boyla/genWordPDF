@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>使用说明</title>
+    <script src="md-lib.js"></script>
+</head>
+<body>
+<div id="markdown-container"></div>
+<script>
+    // 创建一个文件读取器
+    var fileReader = new FileReader();
+
+    // 监听文件读取完成事件
+    fileReader.onload = function(e) {
+        // 获取读取的Markdown内容
+        var markdownText = e.target.result;
+
+        // 将Markdown内容转换为HTML
+        var html = marked.parse(markdownText);
+
+        // 展示Markdown渲染后的HTML内容
+        var container = document.getElementById("markdown-container");
+        container.innerHTML = html;
+    };
+
+    // 监听文件读取错误事件
+    fileReader.onerror = function(e) {
+        console.error("文件读取错误:", e.target.error);
+    };
+    var url = window.location.href;
+    var path = url.substring(0, url.lastIndexOf('/'));
+    var filePath = path + "/使用说明.md";
+    var xhr = new XMLHttpRequest();
+    // 监听 XMLHttpRequest 加载完成事件
+    xhr.onload = function() {
+        if (xhr.status === 200) {
+            var fileBlob = xhr.response;
+            fileReader.readAsText(fileBlob);
+        } else {
+            console.error('文件读取失败:', xhr.statusText);
+        }
+    };
+    // 发送 GET 请求，获取文件
+    xhr.open('GET', filePath);
+    xhr.responseType = 'blob'; // 设置响应类型为 Blob
+    xhr.send();
+</script>
+
+</body>
+</html>
