@@ -184,6 +184,23 @@
             console.log("use cache:" + cacheStr)
             app.models3 = JSON.parse(cacheStr);
         }
+        var sortFunc = function (a, b) {
+            if (typeof a.contentCode !== 'string' || typeof b.contentCode !== 'string') {
+                return 1;
+            }
+            var fieldA = a.contentCode.toLowerCase(); // 将字段转换为小写以进行不区分大小写的排序
+            var fieldB = b.contentCode.toLowerCase(); // 将字段转换为小写以进行不区分大小写的排序
+
+            // 使用 localeCompare 进行字符串的比较
+            if (fieldA < fieldB) {
+                return -1;
+            }
+            if (fieldA > fieldB) {
+                return 1;
+            }
+            return 0; // 相等的情况
+        };
+        app.models3 = app.models3.sort(sortFunc);
     }
 
     // localStorage.removeItem('models3')
