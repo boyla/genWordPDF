@@ -262,6 +262,8 @@
         var contentLi = []
         for (var j = 1; j <= inputSum; j++) {
             var input = document.getElementById("input" + j).innerHTML
+            input = input.replaceAll("&lt;", "<")
+            input = input.replaceAll("&gt;", ">")
             if (input != null && input.length > 0) {
                 contentLi.push(input)
             }
