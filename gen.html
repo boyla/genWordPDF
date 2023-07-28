@@ -630,8 +630,26 @@
                             cursorY += SIZE_3;
                             doc.setFontSize(fontSize);
                         } else {
-                            doc.text(lines[i], honPadding, cursorY); // 在当前页的给定位置添加文本
-                            cursorY += fontSize + parseInt(app.linespace); // 递增 Y 坐标位置
+                            if (lines[i][0] === ' ' && lines[i].replaceAll(' ', '').length === 0) {
+                                var unSetStr = lines[i];
+                                var unSetStrLen = unSetStr.length;
+                                console.log("skip blank line unSetStrLen:" + unSetStrLen);
+                                if (unSetStrLen > 5) {
+                                    continue;
+                                }
+                                var j = i + 1;
+                                var newStr = ' ' + unSetStr + lines[j];
+                                if (newStr.length > 34) {
+                                    lines[j] = newStr.substring(34);
+                                    lines.splice(j, 0, newStr.substring(0, 34));
+                                } else {
+                                    lines[j] = newStr;
+                                    break;
+                                }
+                            } else {
+                                doc.text(lines[i], honPadding, cursorY); // 在当前页的给定位置添加文本
+                                cursorY += fontSize + parseInt(app.linespace); // 递增 Y 坐标位置
+                            }
                         }
                     }
                 })
