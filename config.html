@@ -325,10 +325,10 @@
                         var arr = JSON.parse(arrJSON);
                         // 合并到当前配置
                         for (var j = 0; j < arr.length; j++) {
-                            var title = arr[j].title;
+                            var contentCode = arr[j].contentCode;
                             var innerIndex = -1;
                             for (var k = 0; k < app.models.length; k++) {
-                                if (app.models[k].title === title) {
+                                if (app.models[k].contentCode === contentCode) {
                                     innerIndex = k;
                                     break;
                                 }
