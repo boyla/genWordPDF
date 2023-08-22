@@ -788,7 +788,7 @@
             return;
         }
         app.customChapter = obj;
-        var checkStr = obj.contentCode.substring(0, obj.contentCode.indexOf("-"));
+        var checkStr = obj.contentCode;
         if (checkStr === null || checkStr.length < 1) {
             alert("无可用配置");
             return;
