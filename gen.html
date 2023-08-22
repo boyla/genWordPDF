@@ -46,9 +46,9 @@
     <script src="jspdf-autotable-3.2.10.js"></script>
     <!--    <script src="jspdf-autotable-3.2.15.js"></script>-->
     <!--    taost-->
-<!--    <script src="https://cdn.bootcss.com/jquery/3.4.1/jquery.min.js"></script>-->
-<!--    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet">-->
-<!--    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>-->
+    <!--    <script src="https://cdn.bootcss.com/jquery/3.4.1/jquery.min.js"></script>-->
+    <!--    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet">-->
+    <!--    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>-->
     <script src="toast-jquery-3.4.1.js"></script>
     <link rel="stylesheet" type="text/css" href="toast.css">
     <script src="toast.js"></script>
@@ -137,7 +137,7 @@
                 <div class="card border-info bg-light"
                      style="margin-top: 25px;border-radius:25px;padding: 1.5% 3% 1.5% 3%">
                     <ul class="list-group" style="list-style: none;margin-top:0;padding:0%;">
-                        <li v-for="obj in models"
+                        <li v-for="obj in shortModels"
                             style="margin-top: 1.5%;margin-bottom: 1.5%;padding:0">
                             <div class="card"
                                  style="border-radius:25px;padding: 16px;background: white">
@@ -150,7 +150,7 @@
                                         <select v-model="obj.selected" @change="selectOption" style="width: 100%">
                                             <option v-for="(option, index) in obj.contents" :key="index" :value="index"
                                                     style="height: auto">
-                                                {{ (index+1) +". "+ option }}
+                                                {{ (index+1) + ". [" + obj.rawIds[index] +"] "+ option }}
                                             </option>
                                         </select>
                                     </div>
@@ -309,6 +309,7 @@
         el: "#app",
         data: {
             models: [],
+            shortModels: [],
             models2: [],
             retLi: [],
             retLi2: [],
@@ -748,6 +749,20 @@
         return 0; // 相等的情况
     };
     app.models = app.models.sort(sortFunc);
+    app.shortModels = app.models.filter((item) => {
+        var raw = item.contentCode
+        item.contentCode = raw.split("-")[0]
+        item.rawIds = new Array(item.contents.length).fill(raw)
+        return item
+    })
+    for (let i = 0; i < app.shortModels.length - 1; i++) {
+        if (app.shortModels[i].contentCode === app.shortModels[i + 1].contentCode) {
+            app.shortModels[i].contents = app.shortModels[i].contents.concat(app.shortModels[i + 1].contents)
+            app.shortModels[i].rawIds = app.shortModels[i].rawIds.concat(app.shortModels[i + 1].rawIds)
+            app.shortModels.splice(i+1, 1);
+            i--;
+        }
+    }
     app.models2 = app.models2.sort(sortFunc);
     // console.log("Vue:" + JSON.stringify(models))
 
